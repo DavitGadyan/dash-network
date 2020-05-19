@@ -18,7 +18,8 @@ const dflts = {
 
 const linkAttrs = {
     stroke: '#999',
-    strokeOpacity: 0.6
+    strokeOpacity: 0.6,
+    strokeWidth: 2
 };
 
 const nodeAttrs = {
@@ -46,9 +47,18 @@ export default class NetworkD3 {
 
         const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
         self.color = d => d.color || colorScale(d.group || d.id);
+        self.source_color = d => d.source_color;
+        self.target_color = d => d.target_color;
 
         self.svg = d3.select(el).append('svg');
         self.svg.on('click', self.wrappedClick);
+
+        
+        self.defs = self.svg.append("defs");
+        self.gradient1 = self.defs.append("linearGradient").attr("id", "gradient1");
+        self.gradient1.append("stop").attr("offset", "0%").attr("stop-color", "blue");
+        self.gradient1.append("stop").attr("offset", "100%").attr("stop-color", "green");
+
 
         self.linkGroup = self.svg.append('g')
             .style('pointer-events', 'none');
@@ -121,6 +131,7 @@ export default class NetworkD3 {
         }
 
         let links = self.linkGroup.selectAll('line');
+
         let nodes = self.nodeGroup.selectAll('circle');
         let texts = self.textGroup.selectAll('text');
         let i;
@@ -179,35 +190,62 @@ export default class NetworkD3 {
             links = links.data(self.linkData, d => d.source + '>>' + d.source);
             links.exit().remove();
             links = links.enter().append('line')
-                .attr('stroke', linkAttrs.stroke)
-                .attr('stroke-opacity', linkAttrs.strokeOpacity)
+                .attr('stroke', function(d){
+                          var id = "S"+d.source.index +"T" + d.target.index;
+                          var gradient1 = self.defs.append("linearGradient").attr("id",  id);
+                          gradient1.append("stop").attr("offset", "0%").attr("stop-color", d.target.color);
+                          gradient1.append("stop").attr("offset", "100%").attr("stop-color", d.source.color);
+                          return "url(#" + id + ")";
+                      })
+                // .attr('stroke-opacity', linkAttrs.strokeOpacity)
+                .attr('stroke-width', linkAttrs.strokeWidth)
               .merge(links);
+
+
+            // links = links
+            //         .enter().append("line")
+            //           .attr("class", "link")
+            //           .style("stroke",function(d){
+            //               var id = "S"+d.source.index +"T" + d.target.index;
+            //               var gradient1 = defs.append("linearGradient").attr("id",  id);
+            //               gradient1.append("stop").attr("offset", "0%").attr("stop-color", d.target.color);
+            //               gradient1.append("stop").attr("offset", "100%").attr("stop-color", d.source.color);
+            //               return "url(#" + id + ")";
+            //           })
+            //            .merge(links);
+
+            // links = links.selectAll("path.link")
+            //     .data(graph.links)
+            //     .enter().append("svg:path")
+            //     .attr("class", "link")
+            //     .attr('stroke-width', linkAttrs.strokeWidth)
+            //   .merge(links);
 
             nodes = nodes.data(self.nodeData, d => d.id);
             nodes.exit().remove();
             nodes = nodes.enter().append('circle')
-                .attr('stroke', nodeAttrs.stroke)
-                .attr('stroke-width', nodeAttrs.strokeWidth)
+                // .attr('stroke', nodeAttrs.stroke)
+                // .attr('stroke-width', nodeAttrs.strokeWidth)
                 .call(self.drag())
                 .on('click', self.wrappedClick)
               .merge(nodes)
                 .attr('fill', self.color);
 
-            texts = texts.data(self.nodeData, d => d.id);
-            texts.exit().remove();
-            texts = texts.enter().append('text')
-                .style('fill', textStyle.fill)
-                .style('text-anchor', textStyle.textAnchor)
-                .style('font-size', textStyle.fontSize)
-                .style('font-family', textStyle.fontFamily)
-                .style('text-shadow', textStyle.textShadow)
-              .merge(texts)
-                .text(d => d.id);
+            // texts = texts.data(self.nodeData, d => d.id);
+            // texts.exit().remove();
+            // texts = texts.enter().append('text')
+            //     .style('fill', textStyle.fill)
+            //     .style('text-anchor', textStyle.textAnchor)
+            //     .style('font-size', textStyle.fontSize)
+            //     .style('font-family', textStyle.fontFamily)
+            //     .style('text-shadow', textStyle.textShadow)
+            //   .merge(texts)
+            //     .text(d => d.id);
         }
 
         self.links = links;
         self.nodes = nodes;
-        self.texts = texts;
+        // self.texts = texts;
 
         if(dataChange || linkWidthChange) {
             let maxFoundWidth = 0;
