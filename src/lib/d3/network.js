@@ -112,8 +112,7 @@ export default class NetworkD3 {
         const oldFigure = self.figure;
 
         // fill defaults in the new figure
-        const el = document.getElementById(figure.id);
-        const width = figure.width || el.offsetWidth;
+        const width = figure.width || self.el.offsetWidth;
         const height = figure.height || dflts.height;
         const linkWidth = figure.linkWidth || dflts.linkWidth;
         const maxLinkWidth = figure.maxLinkWidth || dflts.maxLinkWidth;
@@ -142,7 +141,6 @@ export default class NetworkD3 {
 
         if(sizeChange) {
             self.svg
-                .attr('viewBox', [-width / 2, -height / 2, width, height])
                 .attr('width', width)
                 .attr('height', height);
 
@@ -184,7 +182,11 @@ export default class NetworkD3 {
                     delete nodeMap[oldId];
                 }
             }
-            self.simulation.nodes(self.nodeData);
+            self.simulation.nodes(self.nodeData)
+                .force("forceX", d3.forceX().x(width / 2))
+                .force("forceY", d3.forceY().y(height / 2))
+                .force("center", d3.forceCenter().x(width / 2).y(height / 2));
+
 
             // Update links in place as well
             // Links array has no extra data so we can simply replace old with new
@@ -331,14 +333,14 @@ export default class NetworkD3 {
         const self = this;
         return () => {
             self.links
-                .attr('x1', d => d.source.x)
-                .attr('y1', d => d.source.y)
-                .attr('x2', d => d.target.x)
-                .attr('y2', d => d.target.y);
+                .attr("x1", d => self.getClientBoundingX(d.source.x))
+                .attr("y1", d => self.getClientBoundingY(d.source.y))
+                .attr("x2", d => self.getClientBoundingX(d.target.x))
+                .attr("y2", d => self.getClientBoundingY(d.target.y));
 
             self.nodes
-                .attr('cx', d => d.x)
-                .attr('cy', d => d.y);
+                .attr("cx", d => self.getClientBoundingX(d.x))
+                .attr("cy", d => self.getClientBoundingY(d.y));
 
             // self.texts
             //     .attr('x', d => d.x)
@@ -357,6 +359,16 @@ export default class NetworkD3 {
                     .attr("y2", ratio + gradientVector.y);
             });
         }
+    }
+
+    getClientBoundingX(x) {
+        const {width, nodeRadius} = this.figure;
+        return Math.max(nodeRadius, Math.min(width - nodeRadius, x));
+    }
+
+    getClientBoundingY(y) {
+        const {height, nodeRadius} = this.figure;
+        return Math.max(nodeRadius, Math.min(height - nodeRadius, y));
     }
 
     drag() {
