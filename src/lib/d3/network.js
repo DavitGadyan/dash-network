@@ -277,14 +277,23 @@ export default class NetworkD3 {
         const enterLinearGradients = linearGradients.enter().append("linearGradient");
 
         enterLinearGradients.append("svg:stop")
-            .attr("offset", "0%")
-            .attr("stop-color", d => this.color(d.source));
+            .attr("class", "stop--first")
+            .attr("offset", "0%");
+            // .attr("stop-color", d => this.color(d.source));
         enterLinearGradients.append("svg:stop")
-            .attr("offset", "100%")
-            .attr("stop-color", d => this.color(d.target));
-        enterLinearGradients.merge(linearGradients)
+            .attr("class", "stop--second")
+            .attr("offset", "100%");
+            // .attr("stop-color", d => this.color(d.target));
+
+        const mergeLinearGradients = enterLinearGradients.merge(linearGradients);
+
+        mergeLinearGradients
             .attr("id", d => this.createConnectId(d.source, d.target))
             .attr("spreadMethod", "pad");
+        mergeLinearGradients.select('stop.stop--first')
+            .attr("stop-color", d => this.color(d.source));
+        mergeLinearGradients.select('stop.stop--second')
+            .attr("stop-color", d => this.color(d.target));
 
         linearGradients.exit().remove();
 
@@ -296,15 +305,22 @@ export default class NetworkD3 {
         const enterRadialGradients = radialGradients.enter().append("radialGradient");
 
         enterRadialGradients.append("svg:stop")
+            .attr("class", "stop--first")
             .attr("offset", "40%")
-            .attr("stop-color", d => this.color(d))
             .attr("stop-opacity", "1");
         enterRadialGradients.append("svg:stop")
+            .attr("class", "stop--second")
             .attr("offset", "60%")
-            .attr("stop-color", d => this.color(d))
             .attr("stop-opacity", "0");
-        enterRadialGradients.merge(radialGradients)
-            .attr("id", d => PREFIX_ID + normalizeId(d.id))
+
+        const mergeRadialGradients = enterRadialGradients.merge(radialGradients);
+        
+        mergeRadialGradients
+            .attr("id", d => PREFIX_ID + normalizeId(d.id));
+        mergeRadialGradients.select("stop.stop--first")
+            .attr("stop-color", d => this.color(d))
+        mergeRadialGradients.select("stop.stop--second")
+            .attr("stop-color", d => this.color(d));
 
         radialGradients.exit().remove();
     }
