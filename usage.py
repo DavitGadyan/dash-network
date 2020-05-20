@@ -31,12 +31,11 @@ app.layout = html.Div([    dcc.Dropdown(
         value='data'
     ),
     html.H2('Click a node to expand it, or the background to return'),
+    html.Div([
     Network(
         id='net',
-        data=data,
-        nodeRadius=10
-    ),
-    html.Div(id='output')
+        data=data,height=550, width=1200, nodeRadius=17)],className="row", style ={'textAlign': 'center'}),
+    # html.Div(id='output')
 ])
 
 @app.callback(Output('net', 'data'),
