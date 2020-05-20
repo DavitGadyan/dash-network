@@ -6,6 +6,7 @@ const DIST_EXTRA = 0;
 const REPULSION = -80;
 const REPULSIONPOWER = 0.3;
 const MAXREPULSIONLENGTH = 0.25;
+const PREFIX_ID = 'network';
 
 const dflts = {
     width: 500,
@@ -27,13 +28,33 @@ const nodeAttrs = {
     strokeWidth: 1
 };
 
-const textStyle = {
-    fill: '#444',
-    textAnchor: 'middle',
-    fontSize: '10px',
-    fontFamily: 'Arial',
-    textShadow: 'white -1px 0px 0.5px, white 0px -1px 0.5px, white 0px 1px 0.5px, white 1px 0px 0.5px'
-};
+// const textStyle = {
+//     fill: '#444',
+//     textAnchor: 'middle',
+//     fontSize: '10px',
+//     fontFamily: 'Arial',
+//     textShadow: 'white -1px 0px 0.5px, white 0px -1px 0.5px, white 0px 1px 0.5px, white 1px 0px 0.5px'
+// };
+
+/**
+ * Define a vector and magnitude
+ * @constructor x, y
+ */
+class Vector {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.magnitude = Math.sqrt(x * x, y * y);
+    }
+
+    getUnit() {
+        return new Vector(this.x / this.magnitude, this.y / this.magnitude);
+    }
+
+    scale(ratio) {
+        return new Vector(this.x * ratio, this.y * ratio);
+    }
+}
 
 
 export default class NetworkD3 {
@@ -54,11 +75,7 @@ export default class NetworkD3 {
         self.svg.on('click', self.wrappedClick);
 
         
-        self.defs = self.svg.append("defs");
-        self.gradient1 = self.defs.append("linearGradient").attr("id", "gradient1");
-        self.gradient1.append("stop").attr("offset", "0%").attr("stop-color", "blue");
-        self.gradient1.append("stop").attr("offset", "100%").attr("stop-color", "green");
-
+        self.defs = self.svg.append("svg:defs");
 
         self.linkGroup = self.svg.append('g')
             .style('pointer-events', 'none');
@@ -133,7 +150,7 @@ export default class NetworkD3 {
         let links = self.linkGroup.selectAll('line');
 
         let nodes = self.nodeGroup.selectAll('circle');
-        let texts = self.textGroup.selectAll('text');
+        // let texts = self.textGroup.selectAll('text');
         let i;
 
         if(dataChange) {
@@ -184,52 +201,27 @@ export default class NetworkD3 {
                 self.linkData.splice(newLinkCount, oldLinkCount - newLinkCount);
             }
 
+            // Update defs
+            self.updateDefs();
+
             // Now propagate the new data (& attributes) to the DOM elements
             // Omit positioning for now, it will be handled by `self.tick`
             // via the force model.
             links = links.data(self.linkData, d => d.source + '>>' + d.source);
             links.exit().remove();
             links = links.enter().append('line')
-                .attr('stroke', function(d){
-                          var id = "S"+d.source.index +"T" + d.target.index;
-                          var gradient1 = self.defs.append("linearGradient").attr("id",  id);
-                          gradient1.append("stop").attr("offset", "0%").attr("stop-color", d.target.color);
-                          gradient1.append("stop").attr("offset", "100%").attr("stop-color", d.source.color);
-                          return "url(#" + id + ")";
-                      })
-                // .attr('stroke-opacity', linkAttrs.strokeOpacity)
-                .attr('stroke-width', linkAttrs.strokeWidth)
-              .merge(links);
-
-
-            // links = links
-            //         .enter().append("line")
-            //           .attr("class", "link")
-            //           .style("stroke",function(d){
-            //               var id = "S"+d.source.index +"T" + d.target.index;
-            //               var gradient1 = defs.append("linearGradient").attr("id",  id);
-            //               gradient1.append("stop").attr("offset", "0%").attr("stop-color", d.target.color);
-            //               gradient1.append("stop").attr("offset", "100%").attr("stop-color", d.source.color);
-            //               return "url(#" + id + ")";
-            //           })
-            //            .merge(links);
-
-            // links = links.selectAll("path.link")
-            //     .data(graph.links)
-            //     .enter().append("svg:path")
-            //     .attr("class", "link")
-            //     .attr('stroke-width', linkAttrs.strokeWidth)
-            //   .merge(links);
+              .merge(links)
+                .attr("stroke", d => `url(#${self.createConnectId(d.source, d.target)})`)
+                .attr("stroke-width", linkAttrs.strokeWidth);
 
             nodes = nodes.data(self.nodeData, d => d.id);
             nodes.exit().remove();
             nodes = nodes.enter().append('circle')
-                // .attr('stroke', nodeAttrs.stroke)
-                // .attr('stroke-width', nodeAttrs.strokeWidth)
                 .call(self.drag())
                 .on('click', self.wrappedClick)
               .merge(nodes)
-                .attr('fill', self.color);
+                .attr('stroke-width', nodeAttrs.strokeWidth)
+                .attr('fill', d => `url(#${PREFIX_ID + normalizeId(d.id)})`);
 
             // texts = texts.data(self.nodeData, d => d.id);
             // texts.exit().remove();
@@ -277,6 +269,46 @@ export default class NetworkD3 {
         self.simulation.alpha(0.5).restart();
     }
 
+    updateDefs() {
+        /**
+         * Update linear gradients for lines
+         */
+        const linearGradients = this.defs.selectAll("linearGradient").data(this.linkData);
+        const enterLinearGradients = linearGradients.enter().append("linearGradient");
+
+        enterLinearGradients.append("svg:stop")
+            .attr("offset", "0%")
+            .attr("stop-color", d => this.color(d.source));
+        enterLinearGradients.append("svg:stop")
+            .attr("offset", "100%")
+            .attr("stop-color", d => this.color(d.target));
+        enterLinearGradients.merge(linearGradients)
+            .attr("id", d => this.createConnectId(d.source, d.target))
+            .attr("spreadMethod", "pad");
+
+        linearGradients.exit().remove();
+
+        /**
+         * Update radial gradients
+         * They provide slight glow on nodes
+         */
+        const radialGradients = this.defs.selectAll("radialGradient").data(this.nodeData);
+        const enterRadialGradients = radialGradients.enter().append("radialGradient");
+
+        enterRadialGradients.append("svg:stop")
+            .attr("offset", "40%")
+            .attr("stop-color", d => this.color(d))
+            .attr("stop-opacity", "1");
+        enterRadialGradients.append("svg:stop")
+            .attr("offset", "60%")
+            .attr("stop-color", d => this.color(d))
+            .attr("stop-opacity", "0");
+        enterRadialGradients.merge(radialGradients)
+            .attr("id", d => PREFIX_ID + normalizeId(d.id))
+
+        radialGradients.exit().remove();
+    }
+
     tick() {
         const self = this;
         return () => {
@@ -290,9 +322,22 @@ export default class NetworkD3 {
                 .attr('cx', d => d.x)
                 .attr('cy', d => d.y);
 
-            self.texts
-                .attr('x', d => d.x)
-                .attr('y', d => d.y);
+            // self.texts
+            //     .attr('x', d => d.x)
+            //     .attr('y', d => d.y);
+
+            self.defs.selectAll("linearGradient").each(function(d) {
+                const {source, target} = d;
+                const linkVector = new Vector(target.x - source.x, target.y - source.y).getUnit();
+                const ratio = 0.5;
+                const gradientVector = linkVector.scale(ratio);
+
+                self.defs.select('#' + self.createConnectId(d.source, d.target))
+                    .attr("x1", ratio - gradientVector.x)
+                    .attr("y1", ratio - gradientVector.y)
+                    .attr("x2", ratio + gradientVector.x)
+                    .attr("y2", ratio + gradientVector.y);
+            });
         }
     }
 
@@ -324,6 +369,13 @@ export default class NetworkD3 {
             .on('start', dragstarted)
             .on('drag', dragged)
             .on('end', dragended);
+    }
+
+    createConnectId(source, target) {
+        const sourceId = source.id;
+        const targetId = target.id;
+        
+        return PREFIX_ID + normalizeId(sourceId) + "_" + normalizeId(targetId);
     }
 };
 
@@ -358,4 +410,12 @@ function diff(oldObj, newObj) {
         }
     }
     return hasChange && out;
+}
+
+/**
+ * Create a valid id by escaping a string
+ * @param {string} str 
+ */
+function normalizeId(str) {
+    return str.replace(/\W/g, "_");
 }
