@@ -33,7 +33,8 @@ app.layout = html.Div([    dcc.Dropdown(
     html.H2('Click a node to expand it, or the background to return'),
     Network(
         id='net',
-        data=data
+        data=data,
+        nodeRadius=10
     ),
     html.Div(id='output')
 ])
@@ -55,4 +56,4 @@ def update_data(data_s):
 #         selected_id, len(data['nodes']), len(data['links']))
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=True, port=8051)

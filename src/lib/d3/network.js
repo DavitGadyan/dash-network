@@ -11,9 +11,9 @@ const PREFIX_ID = 'network';
 const dflts = {
     width: 500,
     height: 500,
-    linkWidth: 4,
+    linkWidth: 8,
     maxLinkWidth: 20,
-    nodeRadius: 10,
+    nodeRadius: 20,
     maxRadius: 20
 };
 
