@@ -26,7 +26,6 @@ export default class Network extends Component {
 }
 
 Network.defaultProps = {
-    width: 500,
     height: 500,
     linkWidth: 4,
     maxLinkWidth: 20,

@@ -34,7 +34,7 @@ app.layout = html.Div([    dcc.Dropdown(
     html.Div([
     Network(
         id='net',
-        data=data,height=550, width=1200, nodeRadius=17)],className="row", style ={'textAlign': 'center'}),
+        data=data,height=550, nodeRadius=17)],className="row", style ={'textAlign': 'center'}),
     # html.Div(id='output')
 ])
 

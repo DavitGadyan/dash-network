@@ -11,9 +11,9 @@ const PREFIX_ID = 'network';
 const dflts = {
     width: 500,
     height: 500,
-    linkWidth: 8,
+    linkWidth: 4,
     maxLinkWidth: 20,
-    nodeRadius: 20,
+    nodeRadius: 10,
     maxRadius: 20
 };
 
@@ -60,6 +60,7 @@ class Vector {
 export default class NetworkD3 {
     constructor(el, figure, onClick) {
         const self = this;
+        self.el = el;
 
         self.update = self.update.bind(self);
         self.tick = self.tick.bind(self);
@@ -111,7 +112,8 @@ export default class NetworkD3 {
         const oldFigure = self.figure;
 
         // fill defaults in the new figure
-        const width = figure.width || dflts.width;
+        const el = document.getElementById(figure.id);
+        const width = figure.width || el.offsetWidth;
         const height = figure.height || dflts.height;
         const linkWidth = figure.linkWidth || dflts.linkWidth;
         const maxLinkWidth = figure.maxLinkWidth || dflts.maxLinkWidth;

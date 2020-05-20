@@ -23,11 +23,7 @@
           "name": "number"
         },
         "required": false,
-        "description": "Width of the figure to draw, in pixels",
-        "defaultValue": {
-          "value": "500",
-          "computed": false
-        }
+        "description": "Width of the figure to draw, in pixels"
       },
       "height": {
         "type": {
