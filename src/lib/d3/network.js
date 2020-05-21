@@ -332,15 +332,23 @@ export default class NetworkD3 {
     tick() {
         const self = this;
         return () => {
-            self.links
-                .attr("x1", d => self.getClientBoundingX(d.source.x))
-                .attr("y1", d => self.getClientBoundingY(d.source.y))
-                .attr("x2", d => self.getClientBoundingX(d.target.x))
-                .attr("y2", d => self.getClientBoundingY(d.target.y));
-
             self.nodes
-                .attr("cx", d => self.getClientBoundingX(d.x))
-                .attr("cy", d => self.getClientBoundingY(d.y));
+                .attr("cx", d => {
+                    d.x = self.getClientBoundingX(d.x);
+                    return d.x;
+                })
+                .attr("cy", d => {
+                    d.y = self.getClientBoundingY(d.y);
+                    return d.y;
+                });
+
+            self.links
+                .attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y);
+
+            
 
             // self.texts
             //     .attr('x', d => d.x)
