@@ -6,6 +6,8 @@ const DIST_EXTRA = 0;
 const REPULSION = -80;
 const REPULSIONPOWER = 0.3;
 const MAXREPULSIONLENGTH = 0.25;
+const ZOOM_SCALE_EXTENT_MIN = 1;
+const ZOOM_SCALE_EXTENT_MAX = 5;
 const PREFIX_ID = 'network';
 
 const dflts = {
@@ -66,6 +68,7 @@ export default class NetworkD3 {
         self.tick = self.tick.bind(self);
         self.drag = self.drag.bind(self);
         self.wrappedClick = self.wrappedClick.bind(self);
+        self.zoomed = self.zoomed.bind(self);
 
         const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
         self.color = d => d.color || colorScale(d.group || d.id);
@@ -99,11 +102,20 @@ export default class NetworkD3 {
             .force('center', d3.forceCenter())
             .on('tick', self.tick());
 
+        self.zoom = d3.zoom()
+            .scaleExtent([ZOOM_SCALE_EXTENT_MIN, ZOOM_SCALE_EXTENT_MAX])
+            .on("zoom", self.zoomed);
+
+        self.svg
+            .call(self.zoom)
+            .call(self.zoom.transform, d3.zoomIdentity);
+
         self.update(figure);
     }
 
     wrappedClick(d) {
         this.onClick(d);
+        this.resetZoom();
         d3.event.stopPropagation();
     }
 
@@ -145,6 +157,11 @@ export default class NetworkD3 {
                 .attr('height', height);
 
             self.repulsion.distanceMax(Math.min(width, height) * MAXREPULSIONLENGTH);
+
+            const zoomExtent = [[0, 0], [width, height]];
+            self.zoom
+                .extent(zoomExtent)
+                .translateExtent(zoomExtent);
         }
 
         let links = self.linkGroup.selectAll('line');
@@ -407,6 +424,15 @@ export default class NetworkD3 {
             .on('start', dragstarted)
             .on('drag', dragged)
             .on('end', dragended);
+    }
+
+    zoomed() {
+        this.nodeGroup.attr("transform", d3.event.transform);
+        this.linkGroup.attr("transform", d3.event.transform);
+    }
+
+    resetZoom() {
+        this.svg.call(this.zoom.transform, d3.zoomIdentity);
     }
 
     createConnectId(source, target) {
