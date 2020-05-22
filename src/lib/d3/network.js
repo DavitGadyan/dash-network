@@ -491,7 +491,6 @@ function normalizeId(str) {
 
 class ColorSchemeFactory {
     constructor() {
-        this._range = [0, 1];
         this._customColorsScheme = this._createCustomColorsScheme();
     }
 
@@ -592,8 +591,9 @@ class ColorSchemeFactory {
     }
     
     _createColorScale(colorArray) {
+        const step = 1 / colorArray.length;
         return d3.scaleLinear()
-            .domain(this._range)
+            .domain(d3.range(0, 1, step).concat([1]))
             .range(colorArray);
     }
 }
