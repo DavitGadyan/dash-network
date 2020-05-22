@@ -71,10 +71,10 @@ export default class NetworkD3 {
         self.wrappedClick = self.wrappedClick.bind(self);
         self.zoomed = self.zoomed.bind(self);
 
-        const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
-        self.color = d => d.color || colorScale(d.group || d.id);
-        self.source_color = d => d.source_color;
-        self.target_color = d => d.target_color;
+        // eslint-disable-next-line no-use-before-define
+        self.colorSchemeFactory = new ColorSchemeFactory();
+        self.colorScheme = self.colorSchemeFactory.getColorScheme(figure.data.colorscheme);
+        self.color = d => self.colorScheme(d.color);
 
         self.svg = d3.select(el).append('svg');
         self.svg.on('click', self.wrappedClick);
@@ -201,6 +201,9 @@ export default class NetworkD3 {
                     delete nodeMap[oldId];
                 }
             }
+
+            self.colorScheme = self.colorSchemeFactory.getColorScheme(self.figure.data.colorscheme);
+
             self.simulation.nodes(self.nodeData)
                 .force("forceX", d3.forceX().x(width / 2))
                 .force("forceY", d3.forceY().y(height / 2))
@@ -485,3 +488,114 @@ function diff(oldObj, newObj) {
 function normalizeId(str) {
     return str.replace(/\W/g, "_");
 }
+
+class ColorSchemeFactory {
+    constructor() {
+        this._range = [0, 1];
+        this._customColorsScheme = this._createCustomColorsScheme();
+    }
+
+    getColorScheme(colorSchemeName) {
+        let colorScheme = this.getInterpolateColor(colorSchemeName) || this.getCustomColorScheme(colorSchemeName);
+
+        if (!colorScheme) {
+            colorScheme = this.getDefaultScheme();
+        }
+
+        return colorScheme;
+    }
+
+    getInterpolateColor(colorSchemeName) {
+        return d3[`interpolate${colorSchemeName}`];
+    }
+
+    getCustomColorScheme(colorSchemeName) {
+        return this._customColorsScheme[colorSchemeName];
+    }
+
+    getDefaultScheme() {
+        return d3.interpolateReds;
+    }
+
+    _createCustomColorsScheme() {
+        const Bluered = this._createColorScale([
+            'rgb(0, 0, 255)', 
+            'rgb(255, 0, 0)'
+        ]);
+        const Picnic = this._createColorScale([
+            'rgb(0,0,255)', 
+            'rgb(51,153,255)', 
+            'rgb(102,204,255)', 
+            'rgb(153,204,255)', 
+            'rgb(204,204,255)', 
+            'rgb(255,255,255)', 
+            'rgb(255,204,255)', 
+            'rgb(255,153,255)', 
+            'rgb(255,102,204)', 
+            'rgb(255,102,102)', 
+            'rgb(255,0,0)'
+        ]);
+        const Portland = this._createColorScale([
+            'rgb(12,51,131)', 
+            'rgb(10,136,186)', 
+            'rgb(242,211,56)', 
+            'rgb(242,143,56)', 
+            'rgb(217,30,30)'
+        ]);
+        const Jet = this._createColorScale([
+            'rgb(0,0,0)', 
+            'rgb(230,0,0)', 
+            'rgb(255,210,0)', 
+            'rgb(255,255,255)'
+        ]);
+        const Hot = this._createColorScale([
+            'rgb(0,0,0)', 
+            'rgb(230,0,0)', 
+            'rgb(255,210,0)', 
+            'rgb(255,255,255)'
+        ]);
+        const Blackbody = this._createColorScale([
+            'rgb(0,0,0)', 
+            'rgb(230,0,0)', 
+            'rgb(230,210,0)', 
+            'rgb(255,255,255)', 
+            'rgb(160,200,255)'
+        ]);
+        const Earth = this._createColorScale([
+            'rgb(161, 105, 40)', 
+            'rgb(189, 146, 90)', 
+            'rgb(214, 189, 141)', 
+            'rgb(237, 234, 194)', 
+            'rgb(181, 200, 184)', 
+            'rgb(121, 167, 172)', 
+            'rgb(40, 135, 161)'
+        ]);
+        const Electric = this._createColorScale([
+            'rgb(0,0,0)', 
+            'rgb(30,0,100)', 
+            'rgb(120,0,100)', 
+            'rgb(160,90,0)', 
+            'rgb(230,200,0)', 
+            'rgb(255,250,220)'
+        ]);
+
+        return {
+            Bluered,
+            Picnic,
+            Portland,
+            Jet,
+            Hot,
+            Blackbody,
+            Earth,
+            Electric,
+        }
+    }
+    
+    _createColorScale(colorArray) {
+        return d3.scaleLinear()
+            .domain(this._range)
+            .range(colorArray);
+    }
+}
+
+

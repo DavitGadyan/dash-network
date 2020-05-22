@@ -21,7 +21,9 @@ with open('force_graph_data2.json') as json_file:
     data2 = json.load(json_file)
 
 print(data)
-app.layout = html.Div([    dcc.Dropdown(
+app.layout = html.Div([    
+
+    dcc.Dropdown(
         id='data-dropdown',
         options=[
             {'label': 'data', 'value': 'data'},
@@ -29,6 +31,14 @@ app.layout = html.Div([    dcc.Dropdown(
             {'label': 'data2', 'value': 'data2'}
         ],
         value='data'
+    ),
+    dcc.Dropdown(
+        id='cluster-agg-colorscale',
+        placeholder="Select aggregation colorscale.",
+    options=[{'label': i, 'value': i} for i in ['Greys' , 'YlGnBu' , 'Greens' , 'YlOrRd' , 'Bluered' , 'RdBu' , 
+                                                'Reds' , 'Blues' , 'Picnic' , 'Rainbow' , 'Portland' , 'Jet' ,
+                                                'Hot' , 'Blackbody' , 'Earth' , 'Electric' , 'Viridis']],
+    value='Portland',
     ),
     html.H2('Click a node to expand it, or the background to return'),
     html.Div([
@@ -39,14 +49,21 @@ app.layout = html.Div([    dcc.Dropdown(
 ])
 
 @app.callback(Output('net', 'data'),
-              [Input('data-dropdown', 'value')])
-def update_data(data_s):
-	if data_s == 'data':
-	    return data
-	elif data_s == 'data1':
-	    return data1
-	elif data_s == 'data2':
-	    return data2
+              [Input('data-dropdown', 'value'),
+              Input('cluster-agg-colorscale', 'value')])
+def update_data(data_s, colorscheme):
+    if data_s == 'data':
+        data['colorscheme'] = colorscheme
+        print(data)
+        return data
+    elif data_s == 'data1':
+        data1['colorscheme'] = colorscheme
+        print(data1)
+        return data1
+    elif data_s == 'data2':
+        data2['colorscheme'] = colorscheme
+        print(data2)
+        return data2
 
 # @app.callback(Output('output', 'children'),
 #               [Input('net', 'selectedId'), Input('net', 'data')])
