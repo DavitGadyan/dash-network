@@ -346,7 +346,7 @@ export default class NetworkD3 {
         }
 
         if (x > halfWidth) {
-            return halfWidth + nodeRadius;
+            return halfWidth - nodeRadius;
         }
 
         return x;
@@ -361,7 +361,7 @@ export default class NetworkD3 {
         }
 
         if (y > halfHeight) {
-            return halfHeight + nodeRadius;
+            return halfHeight - nodeRadius;
         }
 
         return y;
