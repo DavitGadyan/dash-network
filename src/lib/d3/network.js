@@ -3,12 +3,11 @@ import * as d3 from 'd3';
 const DRAGALPHA = 0.3;
 const DIST_MULTIPLIER = 1;
 const DIST_EXTRA = 0;
-const REPULSION = -500;
-const REPULSIONPOWER = 0.7;
+const REPULSION = -80;
+const REPULSIONPOWER = 0.3;
 const MAXREPULSIONLENGTH = 0.25;
 const ZOOM_SCALE_EXTENT_MIN = 1;
 const ZOOM_SCALE_EXTENT_MAX = 5;
-const VELOCITY_DECAY = 0.7;
 const PREFIX_ID = 'network';
 
 const dflts = {
@@ -31,35 +30,6 @@ const nodeAttrs = {
     strokeWidth: 1
 };
 
-// const textStyle = {
-//     fill: '#444',
-//     textAnchor: 'middle',
-//     fontSize: '10px',
-//     fontFamily: 'Arial',
-//     textShadow: 'white -1px 0px 0.5px, white 0px -1px 0.5px, white 0px 1px 0.5px, white 1px 0px 0.5px'
-// };
-
-/**
- * Define a vector and magnitude
- * @constructor x, y
- */
-class Vector {
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
-        this.magnitude = Math.sqrt(x * x, y * y);
-    }
-
-    getUnit() {
-        return new Vector(this.x / this.magnitude, this.y / this.magnitude);
-    }
-
-    scale(ratio) {
-        return new Vector(this.x * ratio, this.y * ratio);
-    }
-}
-
-
 export default class NetworkD3 {
     constructor(el, figure, onClick) {
         const self = this;
@@ -78,7 +48,6 @@ export default class NetworkD3 {
 
         self.svg = d3.select(el).append('svg');
         self.svg.on('click', self.wrappedClick);
-
         
         self.defs = self.svg.append("svg:defs");
 
@@ -101,7 +70,6 @@ export default class NetworkD3 {
         self.simulation = d3.forceSimulation(self.nodeData)
             .force('charge', self.repulsion)
             .force('center', d3.forceCenter())
-            .velocityDecay(VELOCITY_DECAY)
             .on('tick', self.tick());
 
         self.zoom = d3.zoom()
@@ -155,6 +123,7 @@ export default class NetworkD3 {
 
         if(sizeChange) {
             self.svg
+                .attr('viewBox', [-width / 2, -height / 2, width, height])
                 .attr('width', width)
                 .attr('height', height);
 
@@ -167,9 +136,7 @@ export default class NetworkD3 {
         }
 
         let links = self.linkGroup.selectAll('line');
-
         let nodes = self.nodeGroup.selectAll('circle');
-        // let texts = self.textGroup.selectAll('text');
         let i;
 
         if(dataChange) {
@@ -204,11 +171,7 @@ export default class NetworkD3 {
 
             self.colorScheme = self.colorSchemeFactory.getColorScheme(self.figure.data.colorscheme);
 
-            self.simulation.nodes(self.nodeData)
-                .force("forceX", d3.forceX().x(width / 2))
-                .force("forceY", d3.forceY().y(height / 2))
-                .force("center", d3.forceCenter().x(width / 2).y(height / 2));
-
+            self.simulation.nodes(self.nodeData);
 
             // Update links in place as well
             // Links array has no extra data so we can simply replace old with new
@@ -248,22 +211,10 @@ export default class NetworkD3 {
               .merge(nodes)
                 .attr('stroke-width', nodeAttrs.strokeWidth)
                 .attr('fill', d => `url(#${PREFIX_ID + normalizeId(d.id)})`);
-
-            // texts = texts.data(self.nodeData, d => d.id);
-            // texts.exit().remove();
-            // texts = texts.enter().append('text')
-            //     .style('fill', textStyle.fill)
-            //     .style('text-anchor', textStyle.textAnchor)
-            //     .style('font-size', textStyle.fontSize)
-            //     .style('font-family', textStyle.fontFamily)
-            //     .style('text-shadow', textStyle.textShadow)
-            //   .merge(texts)
-            //     .text(d => d.id);
         }
 
         self.links = links;
         self.nodes = nodes;
-        // self.texts = texts;
 
         if(dataChange || linkWidthChange) {
             let maxFoundWidth = 0;
@@ -305,11 +256,9 @@ export default class NetworkD3 {
         enterLinearGradients.append("svg:stop")
             .attr("class", "stop--first")
             .attr("offset", "0%");
-            // .attr("stop-color", d => this.color(d.source));
         enterLinearGradients.append("svg:stop")
             .attr("class", "stop--second")
             .attr("offset", "100%");
-            // .attr("stop-color", d => this.color(d.target));
 
         const mergeLinearGradients = enterLinearGradients.merge(linearGradients);
 
@@ -356,12 +305,14 @@ export default class NetworkD3 {
         return () => {
             self.nodes
                 .attr("cx", d => {
-                    d.x = self.getClientBoundingX(d.x);
-                    return d.x;
+                    const cx = self.getClientBoundingX(d.x);
+                    d.x = cx;
+                    return cx;
                 })
                 .attr("cy", d => {
-                    d.y = self.getClientBoundingY(d.y);
-                    return d.y;
+                    const cy = self.getClientBoundingY(d.y);
+                    d.y = cy;
+                    return cy;
                 });
 
             self.links
@@ -370,14 +321,9 @@ export default class NetworkD3 {
                 .attr("x2", d => d.target.x)
                 .attr("y2", d => d.target.y);
 
-            
-
-            // self.texts
-            //     .attr('x', d => d.x)
-            //     .attr('y', d => d.y);
-
             self.defs.selectAll("linearGradient").each(function(d) {
                 const {source, target} = d;
+                // eslint-disable-next-line no-use-before-define
                 const linkVector = new Vector(target.x - source.x, target.y - source.y).getUnit();
                 const ratio = 0.5;
                 const gradientVector = linkVector.scale(ratio);
@@ -393,12 +339,32 @@ export default class NetworkD3 {
 
     getClientBoundingX(x) {
         const {width, nodeRadius} = this.figure;
-        return Math.max(nodeRadius, Math.min(width - nodeRadius, x));
+        const halfWidth = width / 2;
+
+        if (x < -halfWidth) {
+            return -halfWidth + nodeRadius;
+        }
+
+        if (x > halfWidth) {
+            return halfWidth + nodeRadius;
+        }
+
+        return x;
     }
 
     getClientBoundingY(y) {
         const {height, nodeRadius} = this.figure;
-        return Math.max(nodeRadius, Math.min(height - nodeRadius, y));
+        const halfHeight = height / 2;
+
+        if (y < -halfHeight) {
+            return -halfHeight + nodeRadius;
+        }
+
+        if (y > halfHeight) {
+            return halfHeight + nodeRadius;
+        }
+
+        return y;
     }
 
     drag() {
@@ -487,6 +453,26 @@ function diff(oldObj, newObj) {
  */
 function normalizeId(str) {
     return str.replace(/\W/g, "_");
+}
+
+/**
+ * Define a vector and magnitude
+ * @constructor x, y
+ */
+class Vector {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.magnitude = Math.sqrt(x * x, y * y);
+    }
+
+    getUnit() {
+        return new Vector(this.x / this.magnitude, this.y / this.magnitude);
+    }
+
+    scale(ratio) {
+        return new Vector(this.x * ratio, this.y * ratio);
+    }
 }
 
 class ColorSchemeFactory {
@@ -592,8 +578,10 @@ class ColorSchemeFactory {
     
     _createColorScale(colorArray) {
         const step = 1 / colorArray.length;
+        const domain = d3.range(0, 1, step).concat([1]);
+
         return d3.scaleLinear()
-            .domain(d3.range(0, 1, step).concat([1]))
+            .domain(domain)
             .range(colorArray);
     }
 }
