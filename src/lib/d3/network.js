@@ -3,12 +3,12 @@ import * as d3 from 'd3';
 const DRAGALPHA = 0.3;
 const DIST_MULTIPLIER = 1;
 const DIST_EXTRA = 0;
-const REPULSION = -80;
-const REPULSIONPOWER = 0.3;
+const REPULSION = -500;
+const REPULSIONPOWER = 0.7;
 const MAXREPULSIONLENGTH = 0.25;
 const ZOOM_SCALE_EXTENT_MIN = 1;
 const ZOOM_SCALE_EXTENT_MAX = 5;
-const VELOCITY_DECAY = 0.8;
+const VELOCITY_DECAY = 0.7;
 const PREFIX_ID = 'network';
 
 const dflts = {
