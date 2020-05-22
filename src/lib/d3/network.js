@@ -8,6 +8,7 @@ const REPULSIONPOWER = 0.3;
 const MAXREPULSIONLENGTH = 0.25;
 const ZOOM_SCALE_EXTENT_MIN = 1;
 const ZOOM_SCALE_EXTENT_MAX = 5;
+const VELOCITY_DECAY = 0.8;
 const PREFIX_ID = 'network';
 
 const dflts = {
@@ -100,6 +101,7 @@ export default class NetworkD3 {
         self.simulation = d3.forceSimulation(self.nodeData)
             .force('charge', self.repulsion)
             .force('center', d3.forceCenter())
+            .velocityDecay(VELOCITY_DECAY)
             .on('tick', self.tick());
 
         self.zoom = d3.zoom()
