@@ -341,14 +341,14 @@ export default class NetworkD3 {
     getClientBoundingX(x) {
         const {width, nodeRadius} = this.figure;
         const halfWidth = width / 2;
-        const maxHalfWidth = halfWidth - nodeRadius - PADDING;
+        const maxHalfWidth = halfWidth - nodeRadius;
         
         if (x < -maxHalfWidth) {
-            return -maxHalfWidth;
+            return -maxHalfWidth + PADDING;
         }
 
         if (x > maxHalfWidth) {
-            return maxHalfWidth;
+            return maxHalfWidth - PADDING;
         }
 
         return x;
@@ -357,14 +357,14 @@ export default class NetworkD3 {
     getClientBoundingY(y) {
         const {height, nodeRadius} = this.figure;
         const halfHeight = height / 2;
-        const maxHalfHeight = halfHeight - nodeRadius - PADDING;
+        const maxHalfHeight = halfHeight - nodeRadius;
 
         if (y < -maxHalfHeight) {
-            return -maxHalfHeight;
+            return -maxHalfHeight + PADDING;
         }
 
         if (y > maxHalfHeight) {
-            return maxHalfHeight;
+            return maxHalfHeight - PADDING;
         }
 
         return y;
@@ -484,7 +484,7 @@ class ColorSchemeFactory {
     }
 
     getColorScheme(colorSchemeName) {
-        let colorScheme = this.getInterpolateColor(colorSchemeName) || this.getCustomColorScheme(colorSchemeName);
+        let colorScheme = this.getCustomColorScheme(colorSchemeName) || this.getInterpolateColor(colorSchemeName);
 
         if (!colorScheme) {
             colorScheme = this.getDefaultScheme();
@@ -509,6 +509,17 @@ class ColorSchemeFactory {
         const Bluered = this._createLinearColorScale([
             'rgb(0, 0, 255)', 
             'rgb(255, 0, 0)'
+        ]);
+        const Rainbow = this._createDivergingColorScale([
+            'rgb(150,0,90)', 
+            'rgb(0,0,200)',
+            'rgb(0,25,255)', 
+            'rgb(0,152,255)',
+            'rgb(44,255,150)', 
+            'rgb(151,255,0)',
+            'rgb(255,234,0)', 
+            'rgb(255,111,0)',
+            'rgb(255,0,0)',
         ]);
         const Picnic = this._createDivergingColorScale([
             'rgb(0,0,255)', 
@@ -578,6 +589,7 @@ class ColorSchemeFactory {
             Blackbody,
             Earth,
             Electric,
+            Rainbow
         }
     }
     
