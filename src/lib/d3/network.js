@@ -1,12 +1,12 @@
 import * as d3 from 'd3';
 
-const DRAGALPHA = 0.3;
-const DIST_MULTIPLIER = 1;
-const DIST_EXTRA = 0;
-const REPULSION = -80;
-const REPULSIONPOWER = 0.3;
-const MAXREPULSIONLENGTH = 0.25;
-const ZOOM_SCALE_EXTENT_MIN = 1;
+const DRAGALPHA = 0.3; 
+const DIST_MULTIPLIER = 1; 
+const DIST_EXTRA = 0; 
+const REPULSION = -500; 
+const REPULSIONPOWER = 0.7; 
+const MAXREPULSIONLENGTH = 0.25; 
+const ZOOM_SCALE_EXTENT_MIN = 1; 
 const ZOOM_SCALE_EXTENT_MAX = 5;
 const PREFIX_ID = 'network';
 
@@ -503,11 +503,11 @@ class ColorSchemeFactory {
     }
 
     _createCustomColorsScheme() {
-        const Bluered = this._createColorScale([
+        const Bluered = this._createLinearColorScale([
             'rgb(0, 0, 255)', 
             'rgb(255, 0, 0)'
         ]);
-        const Picnic = this._createColorScale([
+        const Picnic = this._createDivergingColorScale([
             'rgb(0,0,255)', 
             'rgb(51,153,255)', 
             'rgb(102,204,255)', 
@@ -520,14 +520,14 @@ class ColorSchemeFactory {
             'rgb(255,102,102)', 
             'rgb(255,0,0)'
         ]);
-        const Portland = this._createColorScale([
+        const Portland = this._createDivergingColorScale([
             'rgb(12,51,131)', 
             'rgb(10,136,186)', 
             'rgb(242,211,56)', 
             'rgb(242,143,56)', 
             'rgb(217,30,30)'
         ]);
-        const Jet = this._createColorScale([
+        const Jet = this._createDivergingColorScale([
             'rgb(0,0,131)', 
             'rgb(0,60,170)', 
             'rgb(5,255,255)', 
@@ -535,20 +535,20 @@ class ColorSchemeFactory {
             'rgb(250,0,0)',
             'rgb(128,0,0)',
         ]);
-        const Hot = this._createColorScale([
+        const Hot = this._createDivergingColorScale([
             'rgb(0,0,0)', 
             'rgb(230,0,0)', 
             'rgb(255,210,0)', 
             'rgb(255,255,255)'
         ]);
-        const Blackbody = this._createColorScale([
+        const Blackbody = this._createDivergingColorScale([
             'rgb(0,0,0)', 
             'rgb(230,0,0)', 
             'rgb(230,210,0)', 
             'rgb(255,255,255)', 
             'rgb(160,200,255)'
         ]);
-        const Earth = this._createColorScale([
+        const Earth = this._createDivergingColorScale([
             'rgb(161, 105, 40)', 
             'rgb(189, 146, 90)', 
             'rgb(214, 189, 141)', 
@@ -557,7 +557,7 @@ class ColorSchemeFactory {
             'rgb(121, 167, 172)', 
             'rgb(40, 135, 161)'
         ]);
-        const Electric = this._createColorScale([
+        const Electric = this._createDivergingColorScale([
             'rgb(0,0,0)', 
             'rgb(30,0,100)', 
             'rgb(120,0,100)', 
@@ -578,7 +578,19 @@ class ColorSchemeFactory {
         }
     }
     
-    _createColorScale(colorArray) {
+    _createLinearColorScale(colorArray) {
         return d3.interpolateRgbBasis(colorArray);
+    }
+
+    _createDivergingColorScale(colorArray) {
+        const length = colorArray.length;
+        const step = 1 / (length - 1);
+        const defaultColor = colorArray[length - 1];
+
+        return d3.scaleSequential((value) => {
+            const index = Math.round(value / step);
+            const color = colorArray[index] || defaultColor;
+            return color;
+        });
     }
 }
