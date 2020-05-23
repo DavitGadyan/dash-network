@@ -8,6 +8,7 @@ const REPULSIONPOWER = 0.7;
 const MAXREPULSIONLENGTH = 0.25; 
 const ZOOM_SCALE_EXTENT_MIN = 1; 
 const ZOOM_SCALE_EXTENT_MAX = 5;
+const PADDING = 8;
 const PREFIX_ID = 'network';
 
 const dflts = {
@@ -340,13 +341,14 @@ export default class NetworkD3 {
     getClientBoundingX(x) {
         const {width, nodeRadius} = this.figure;
         const halfWidth = width / 2;
-
-        if (x < -halfWidth + nodeRadius) {
-            return -halfWidth + nodeRadius;
+        const maxHalfWidth = halfWidth - nodeRadius - PADDING;
+        
+        if (x < -maxHalfWidth) {
+            return -maxHalfWidth;
         }
 
-        if (x > halfWidth - nodeRadius) {
-            return halfWidth - nodeRadius;
+        if (x > maxHalfWidth) {
+            return maxHalfWidth;
         }
 
         return x;
@@ -355,13 +357,14 @@ export default class NetworkD3 {
     getClientBoundingY(y) {
         const {height, nodeRadius} = this.figure;
         const halfHeight = height / 2;
+        const maxHalfHeight = halfHeight - nodeRadius - PADDING;
 
-        if (y < -halfHeight + nodeRadius) {
-            return -halfHeight + nodeRadius;
+        if (y < -maxHalfHeight) {
+            return -maxHalfHeight;
         }
 
-        if (y > halfHeight - nodeRadius) {
-            return halfHeight - nodeRadius;
+        if (y > maxHalfHeight) {
+            return maxHalfHeight;
         }
 
         return y;
