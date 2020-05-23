@@ -528,10 +528,12 @@ class ColorSchemeFactory {
             'rgb(217,30,30)'
         ]);
         const Jet = this._createColorScale([
-            'rgb(0,0,0)', 
-            'rgb(230,0,0)', 
-            'rgb(255,210,0)', 
-            'rgb(255,255,255)'
+            'rgb(0,0,131)', 
+            'rgb(0,60,170)', 
+            'rgb(5,255,255)', 
+            'rgb(255,255,0)',
+            'rgb(250,0,0)',
+            'rgb(128,0,0)',
         ]);
         const Hot = this._createColorScale([
             'rgb(0,0,0)', 
@@ -577,13 +579,6 @@ class ColorSchemeFactory {
     }
     
     _createColorScale(colorArray) {
-        const step = 1 / colorArray.length;
-        const domain = d3.range(0, 1, step).concat([1]);
-
-        return d3.scaleLinear()
-            .domain(domain)
-            .range(colorArray);
+        return d3.interpolateRgbBasis(colorArray);
     }
 }
-
-
