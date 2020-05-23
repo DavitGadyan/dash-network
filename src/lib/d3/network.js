@@ -341,11 +341,11 @@ export default class NetworkD3 {
         const {width, nodeRadius} = this.figure;
         const halfWidth = width / 2;
 
-        if (x < -halfWidth) {
+        if (x < -halfWidth + nodeRadius) {
             return -halfWidth + nodeRadius;
         }
 
-        if (x > halfWidth) {
+        if (x > halfWidth - nodeRadius) {
             return halfWidth - nodeRadius;
         }
 
@@ -356,11 +356,11 @@ export default class NetworkD3 {
         const {height, nodeRadius} = this.figure;
         const halfHeight = height / 2;
 
-        if (y < -halfHeight) {
+        if (y < -halfHeight + nodeRadius) {
             return -halfHeight + nodeRadius;
         }
 
-        if (y > halfHeight) {
+        if (y > halfHeight - nodeRadius) {
             return halfHeight - nodeRadius;
         }
 
