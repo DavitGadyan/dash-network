@@ -3,8 +3,9 @@ import * as d3 from 'd3';
 const DRAGALPHA = 0.3; 
 const DIST_MULTIPLIER = 1; 
 const DIST_EXTRA = 0; 
-const REPULSION = -500; 
-const REPULSIONPOWER = 0.7; 
+const DIST_STRENGTH = 0.7;
+const REPULSION = -200; 
+const REPULSIONPOWER = 0.4; 
 const MAXREPULSIONLENGTH = 0.25; 
 const ZOOM_SCALE_EXTENT_MIN = 1; 
 const ZOOM_SCALE_EXTENT_MAX = 5;
@@ -68,7 +69,7 @@ export default class NetworkD3 {
         self.nodeData = [];
         self.linkData = [];
 
-        self.repulsion = d3.forceManyBody();
+        self.repulsion = d3.forceManyBody().strength(-100);
         self.simulation = d3.forceSimulation(self.nodeData)
             .force('charge', self.repulsion)
             .force('center', d3.forceCenter())
@@ -241,7 +242,7 @@ export default class NetworkD3 {
 
             self.simulation.force('link', d3.forceLink(self.linkData).distance(link => {
                 return DIST_MULTIPLIER * (link.source._r + link.target._r) + DIST_EXTRA
-            }));
+            }).strength(DIST_STRENGTH));
             self.repulsion.strength(d => (
                 REPULSION * d._r / Math.pow(self.nodeData.length, REPULSIONPOWER)
             ));
@@ -581,6 +582,13 @@ class ColorSchemeFactory {
             'rgb(230,200,0)', 
             'rgb(255,250,220)'
         ]);
+        const S2Neon = this._createDivergingColorScale([
+            '#FA0623',
+            '#FFC445',
+            '#00FE68',
+            '#00F2FD',
+            '#417CF6'
+        ])
 
         return {
             Bluered,
@@ -591,7 +599,8 @@ class ColorSchemeFactory {
             Blackbody,
             Earth,
             Electric,
-            Rainbow
+            Rainbow,
+            'S2 Neon': S2Neon
         }
     }
     
