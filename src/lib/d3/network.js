@@ -9,7 +9,7 @@ const REPULSIONPOWER = 0.4;
 const MAXREPULSIONLENGTH = 0.25; 
 const ZOOM_SCALE_EXTENT_MIN = 1; 
 const ZOOM_SCALE_EXTENT_MAX = 5;
-// const VELOCITY_DECAY = 0.8;
+const VELOCITY_DECAY = 0.8;
 const PADDING = 8;
 const PREFIX_ID = 'network';
 
@@ -73,7 +73,7 @@ export default class NetworkD3 {
         self.simulation = d3.forceSimulation(self.nodeData)
             .force('charge', self.repulsion)
             .force('center', d3.forceCenter())
-            // .velocityDecay(VELOCITY_DECAY)
+            .velocityDecay(VELOCITY_DECAY)
             .on('tick', self.tick());
 
         self.zoom = d3.zoom()
@@ -588,7 +588,14 @@ class ColorSchemeFactory {
             '#00FE68',
             '#00F2FD',
             '#417CF6'
-        ])
+        ]);;
+        const S2cool = this._createDivergingColorScale([
+            '#11E8F8',
+            '#52AFFD',
+            '#6586FF',
+            '#8E66FF',
+            '#CD68FF'
+        ]);
 
         return {
             Bluered,
@@ -600,7 +607,8 @@ class ColorSchemeFactory {
             Earth,
             Electric,
             Rainbow,
-            'S2 Neon': S2Neon
+            'S2 Neon': S2Neon,
+            'S2 cool' : S2cool
         }
     }
     

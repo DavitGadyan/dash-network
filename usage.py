@@ -37,7 +37,7 @@ app.layout = html.Div([
         placeholder="Select aggregation colorscale.",
     options=[{'label': i, 'value': i} for i in ['Greys' , 'YlGnBu' , 'Greens' , 'YlOrRd' , 'Bluered' , 'RdBu' , 
                                                 'Reds' , 'Blues' , 'Picnic' , 'Rainbow' , 'Portland' , 'Jet' ,
-                                                'Hot' , 'Blackbody' , 'Earth' , 'Electric' , 'Viridis', 'S2 Neon']],
+                                                'Hot' , 'Blackbody' , 'Earth' , 'Electric' , 'Viridis', 'S2 Neon','S2 cool']],
     value='Portland',
     ),
     html.H2('Click a node to expand it, or the background to return'),
