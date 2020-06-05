@@ -133,7 +133,7 @@ export default class NetworkD3 {
 
             self.repulsion.distanceMax(Math.min(width, height) * MAXREPULSIONLENGTH);
 
-            const zoomExtent = [[0, 0], [width, height]];
+            const zoomExtent = [[-width / 2, -height / 2], [width/2, height/2]];
             self.zoom
                 .extent(zoomExtent)
                 .translateExtent(zoomExtent);
@@ -344,14 +344,15 @@ export default class NetworkD3 {
     getClientBoundingX(x) {
         const {width, nodeRadius} = this.figure;
         const halfWidth = width / 2;
-        const maxHalfWidth = halfWidth - nodeRadius;
+        const scale = this.transform.k;
+        const maxHalfWidth = (halfWidth - nodeRadius - PADDING) / scale;
         
         if (x < -maxHalfWidth) {
-            return -maxHalfWidth + PADDING;
+            return -maxHalfWidth;
         }
 
         if (x > maxHalfWidth) {
-            return maxHalfWidth - PADDING;
+            return maxHalfWidth;
         }
 
         return x;
@@ -359,15 +360,16 @@ export default class NetworkD3 {
 
     getClientBoundingY(y) {
         const {height, nodeRadius} = this.figure;
+        const scale = this.transform.k;
         const halfHeight = height / 2;
-        const maxHalfHeight = halfHeight - nodeRadius;
+        const maxHalfHeight = (halfHeight - nodeRadius - PADDING) / scale;
 
         if (y < -maxHalfHeight) {
-            return -maxHalfHeight + PADDING;
+            return -maxHalfHeight;
         }
 
         if (y > maxHalfHeight) {
-            return maxHalfHeight - PADDING;
+            return maxHalfHeight;
         }
 
         return y;
@@ -404,8 +406,14 @@ export default class NetworkD3 {
     }
 
     zoomed() {
-        this.nodeGroup.attr("transform", d3.event.transform);
-        this.linkGroup.attr("transform", d3.event.transform);
+        const transform = d3.event.transform;        
+        transform.x = 0;
+        transform.y = 0;
+
+        this.nodeGroup.attr("transform", transform);
+        this.linkGroup.attr("transform", transform);
+
+        this.transform = transform;
     }
 
     resetZoom() {
