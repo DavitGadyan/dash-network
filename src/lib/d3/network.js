@@ -69,12 +69,20 @@ export default class NetworkD3 {
         self.nodeData = [];
         self.linkData = [];
 
-        self.repulsion = d3.forceManyBody().strength(-100);
-        self.simulation = d3.forceSimulation(self.nodeData)
+        
+        self.attractForce = d3.forceManyBody().strength(100).distanceMax(400).distanceMin(60);
+        self.repelForce = d3.forceManyBody().strength(-150).distanceMax(50).distanceMin(10);
+        self.repulsion = d3.forceManyBody().strength(50000);
+
+
+        self.simulation = d3.forceSimulation(self.nodeData)            
             .force('charge', self.repulsion)
-            .force('center', d3.forceCenter())
-            .velocityDecay(VELOCITY_DECAY)
-            .on('tick', self.tick());
+            .force("link", d3.forceLink(self.linkData).id(d => d.id))
+            .force("repelForce", self.repelForce)
+            .force("attractForce", self.attractForce)            
+            .force("center", d3.forceCenter(0, 0))            
+            .on('tick', self.tick())
+            ;
 
         self.zoom = d3.zoom()
             .scaleExtent([ZOOM_SCALE_EXTENT_MIN, ZOOM_SCALE_EXTENT_MAX])
@@ -324,7 +332,7 @@ export default class NetworkD3 {
                 .attr("y1", d => d.source.y)
                 .attr("x2", d => d.target.x)
                 .attr("y2", d => d.target.y);
-
+            /*
             self.defs.selectAll("linearGradient").each(function(d) {
                 const {source, target} = d;
                 // eslint-disable-next-line no-use-before-define
@@ -338,6 +346,7 @@ export default class NetworkD3 {
                     .attr("x2", ratio + gradientVector.x)
                     .attr("y2", ratio + gradientVector.y);
             });
+            */
         }
     }
 
