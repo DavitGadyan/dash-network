@@ -339,7 +339,7 @@ export default class NetworkD3 {
                 .attr("y1", d => d.source.y)
                 .attr("x2", d => d.target.x)
                 .attr("y2", d => d.target.y);
-            /*
+            
             self.defs.selectAll("linearGradient").each(function(d) {
                 const {source, target} = d;
                 // eslint-disable-next-line no-use-before-define
@@ -353,7 +353,7 @@ export default class NetworkD3 {
                     .attr("x2", ratio + gradientVector.x)
                     .attr("y2", ratio + gradientVector.y);
             });
-            */
+            
         }
     }
 
