@@ -620,6 +620,13 @@ class ColorSchemeFactory {
             '#8E66FF',
             '#CD68FF'
         ]);
+        const S2lag = this._createDivergingColorScale([
+            '#FF0093',
+            '#FF664E',
+            '#FF9C00',
+            '#FFD200',
+            '#FFF800'
+        ]);
 
         return {
             Bluered,
@@ -632,7 +639,8 @@ class ColorSchemeFactory {
             Electric,
             Rainbow,
             'S2 Neon': S2Neon,
-            'S2 cool' : S2cool
+            'S2 cool' : S2cool,
+            'S2 lag' : S2lag
         }
     }
     
