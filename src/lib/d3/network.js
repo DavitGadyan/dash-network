@@ -1,10 +1,11 @@
 import * as d3 from 'd3';
+import * as d3_lasso from 'd3-lasso'
 
 const DRAGALPHA = 0.3; 
 const DIST_MULTIPLIER = 1; 
 const DIST_EXTRA = 0; 
 const DIST_STRENGTH = 0.7;
-const REPULSION = -200; 
+const REPULSION = -300; 
 const REPULSIONPOWER = 0.4; 
 const MAXREPULSIONLENGTH = 0.25; 
 const ZOOM_SCALE_EXTENT_MIN = -2; 
@@ -91,6 +92,74 @@ export default class NetworkD3 {
             .call(self.zoom.transform, d3.zoomIdentity);
 
         self.update(figure);
+
+        //lasso feature
+        // Define the lasso
+         // Lasso functions to execute while lassoing
+        var lasso_start = function() {
+          self.lasso.items()
+            //.attr("r", 5) // reset size
+            .classed("not_possible",true)
+            .classed("selected",false);
+        };
+
+        var lasso_draw = function(){
+          // Style the possible dots
+            self.lasso.possibleItems()
+                .classed("not_possible",false)
+                .classed("possible",true);
+
+            // Style the not possible dot
+            self.lasso.notPossibleItems()
+                .classed("not_possible",true)
+                .classed("possible",false);
+        };
+
+        var lasso_end = function() {
+          // Reset the color of all dots
+            self.lasso.items()
+                .classed("not_possible",false)
+                .classed("possible",false);
+
+            // Style the selected dots
+            self.lasso.selectedItems()
+                .classed("selected",true)
+                .attr("r",7);
+
+            // Reset the style of the not selected dots
+            self.lasso.notSelectedItems()
+                .attr("r", 10);
+
+        };
+
+        self.nodes = self.nodeGroup.selectAll('circle');
+
+        
+        self.lasso_pan = d3.select(el).append("div")                                        
+                    .style("fill", "none")
+                    //.style("width", self.el.offsetWidth)
+                    //.style("height", figure.height)
+                    .style("width", "100%")
+                    .style("height", "100%")
+                    //.style("z-index", "10000")
+                    .style("position", "absolute")
+                    .style("top", 0)
+                    .style("left", 0)
+                    .attr("transform", "translate(0, 0) scale(1, 1)")                    
+                    ;
+        
+        self.lasso = d3_lasso.lasso()
+            .closePathSelect(true)
+            .closePathDistance(100)
+            .items(self.nodes)        
+            .targetArea(self.lasso_pan)
+            .on("start", lasso_start)
+            .on("draw", lasso_draw)
+            .on("end", lasso_end);
+
+        // Init the lasso on the svg:g that contains the dots
+        self.svg.call(self.lasso);
+
 
         setTimeout(function(){
             self.simulation
