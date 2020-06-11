@@ -2,6 +2,8 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import NetworkD3 from '../d3/network';
 
+import "./network.css"  
+
 /**
  * Network graph component, based on D3 force layout
  */
@@ -21,7 +23,7 @@ export default class Network extends Component {
     }
 
     render() {
-        return <div id={this.props.id} ref={el => {this.el = el}} />;
+        return <div className={'main_div'} id={this.props.id} ref={el => {this.el = el}} />;
     }
 }
 
