@@ -45,7 +45,8 @@ app.layout = html.Div([
         Network(
             id='net',
             data=data,height=550, nodeRadius=17)],className="row", style ={'textAlign': 'center', 'position': 'relative'}),
-        html.Div(id='output')
+        html.Div(id='output'),
+        html.Div(id='output1')
     ])
 
 @app.callback(Output('net', 'data'),
@@ -69,9 +70,15 @@ def update_data(data_s, colorscheme):
 @app.callback(Output('output', 'children'),
                [Input('net', 'selectedId'), Input('net', 'data')])
 def list_connections(selected_id, data):
-    return 'You selected node "{}" on a graph with {} nodes and {} links'.format(
-        selected_id, len(data['nodes']), len(data['links']))
+    print('You selected node "{}" on a graph with {} nodes and {} links'.format(
+        selected_id, len(data['nodes']), len(data['links'])))
 
+
+@app.callback(Output('output1', 'children'),
+               [Input('net', 'selectedIds'), Input('net', 'data')])
+def list_connections1(selected_ids, data):
+    print('You selected nodes ');
+    print(selected_ids)
 
 if __name__ == '__main__':
     app.run_server(debug=True, port=8051)

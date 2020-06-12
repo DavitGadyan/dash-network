@@ -30,7 +30,13 @@ export default class Network extends Component {
 
            if (setProps) { setProps({selectedId}); }
            else { this.setState({selectedId}); }
-       });
+        },
+        nodes => {
+            const {setProps} = this.props;
+            const selectedIds = nodes;
+            if (setProps) { setProps({selectedIds}); }
+            else { this.setState({selectedIds}); }
+        });
     }
 
     componentDidUpdate() {
@@ -202,5 +208,11 @@ Network.propTypes = {
     /**
      * The currently selected node id
      */
-    selectedId: PropTypes.string
+    selectedId: PropTypes.string,
+
+    /**
+     * The currently selected node ids
+     */
+    selectedIds: PropTypes.arrayOf(PropTypes.string)
+
 };

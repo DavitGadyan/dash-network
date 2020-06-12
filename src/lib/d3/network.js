@@ -37,8 +37,8 @@ const nodeAttrs = {
 const cc_zoom_scale_level = 11
 const zoom_scale_arr = [1, 1.15, 1.32, 1.75, 2, 2.3, 2.6, 3, 3.5, 4, 5]
 
-export default class NetworkD3 {
-    constructor(el, figure, onClick) {
+export default class NetworkD3 {    
+    constructor(el, figure, onClick, onLassoSelect) {
         const self = this;
         self.el = el;
 
@@ -83,6 +83,7 @@ export default class NetworkD3 {
         self.figure = {};
 
         self.onClick = onClick;
+        self.onLassoSelect = onLassoSelect;
 
         self.initialized = false;
 
@@ -608,6 +609,15 @@ export default class NetworkD3 {
         // Reset the style of the not selected dots
         self.lasso.notSelectedItems()
             .attr("r", self.figure.nodeRadius);
+
+        var selectedIds = [];
+        var nodes = self.lasso.selectedItems();
+
+        nodes._groups[0].forEach(function(node){
+                var id = node.__data__.id;
+                selectedIds.push(id);
+            });
+        self.onLassoSelect(selectedIds);
 
         
     };

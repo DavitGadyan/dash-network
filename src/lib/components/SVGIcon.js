@@ -1,5 +1,8 @@
 import React from "react";
 
+/**
+ * getViewBox function, based on D3 force layout
+ */
 const getViewBox = name => {
   switch (name) {
     case "pan":
@@ -13,6 +16,9 @@ const getViewBox = name => {
   }
 };
 
+/**
+ * getPath function, based on D3 force layout
+ */
 const getPath = (name, props) => {
   switch (name) {
     case "pan":
@@ -41,6 +47,10 @@ const getPath = (name, props) => {
   }
 };
 
+/**
+ * SVGIcon component, based on D3 force layout
+ */
+
 const SVGIcon = ({
   name = "",
   style = {},
@@ -63,4 +73,7 @@ const SVGIcon = ({
   </svg>
 );
 
+/**
+ * SVGIcon component, based on D3 force layout
+ */
 export default SVGIcon;
