@@ -2,7 +2,27 @@
   "src/lib/components/Network.react.js": {
     "description": "Network graph component, based on D3 force layout",
     "displayName": "Network",
-    "methods": [],
+    "methods": [
+      {
+        "name": "init_toolbar",
+        "docblock": null,
+        "modifiers": [],
+        "params": [],
+        "returns": null
+      },
+      {
+        "name": "click_toolbar",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "e",
+            "type": null
+          }
+        ],
+        "returns": null
+      }
+    ],
     "props": {
       "id": {
         "type": {
@@ -16,7 +36,7 @@
           "name": "func"
         },
         "required": false,
-        "description": "Dash-assigned callback that should be called whenever any of the\nproperties change"
+        "description": "Dash-assigned callback that should be called whenever any of the\r\nproperties change"
       },
       "width": {
         "type": {
@@ -41,7 +61,7 @@
           "name": "object"
         },
         "required": true,
-        "description": "The network data. Should have the form:\n\n  `{nodes: [node0, node1, ...], links: [link0, link1, ...]}`\n\nnodes have the form:\n\n  `{id: 'node id'[, radius: number][, color: 'css color string']}`\n\n`id` is required, must be unique, and is used both in links and\nas the node text.\n`radius` is an optional relative radius, scaled by `maxRadius`\n`color` is an optional css color string.\n\nlinks have the form:\n\n  `{source: sourceId, target: targetId[, width: number]}`\n\n`source` and `target` are required, and must match node ids.\n`width` is an optional relative width, scaled by `maxLinkWidth`"
+        "description": "The network data. Should have the form:\r\n\n  `{nodes: [node0, node1, ...], links: [link0, link1, ...]}`\r\n\nnodes have the form:\r\n\n  `{id: 'node id'[, radius: number][, color: 'css color string']}`\r\n\n`id` is required, must be unique, and is used both in links and\r\nas the node text.\r\n`radius` is an optional relative radius, scaled by `maxRadius`\r\n`color` is an optional css color string.\r\n\nlinks have the form:\r\n\n  `{source: sourceId, target: targetId[, width: number]}`\r\n\n`source` and `target` are required, and must match node ids.\r\n`width` is an optional relative width, scaled by `maxLinkWidth`"
       },
       "dataVersion": {
         "type": {
@@ -74,7 +94,7 @@
           "name": "number"
         },
         "required": false,
-        "description": "Optional maximum width of links, in px. If individual links have `width`,\nthese will be scaled linearly so the largest one has width `maxLinkWidth`.",
+        "description": "Optional maximum width of links, in px. If individual links have `width`,\r\nthese will be scaled linearly so the largest one has width `maxLinkWidth`.",
         "defaultValue": {
           "value": "20",
           "computed": false
@@ -96,7 +116,7 @@
           "name": "number"
         },
         "required": false,
-        "description": "Optional maximum radius of nodes, in px. If individual nodes have `radius`,\nthese will be scaled linearly so the largest one has radius `maxRadius`.",
+        "description": "Optional maximum radius of nodes, in px. If individual nodes have `radius`,\r\nthese will be scaled linearly so the largest one has radius `maxRadius`.",
         "defaultValue": {
           "value": "20",
           "computed": false
@@ -108,6 +128,72 @@
         },
         "required": false,
         "description": "The currently selected node id"
+      },
+      "selectedIds": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "string"
+          }
+        },
+        "required": false,
+        "description": "The currently selected node ids"
+      }
+    }
+  },
+  "src/lib/components/SVGIcon.js": {
+    "description": "SVGIcon component, based on D3 force layout",
+    "displayName": "SVGIcon",
+    "methods": [],
+    "props": {
+      "name": {
+        "defaultValue": {
+          "value": "\"\"",
+          "computed": false
+        },
+        "required": false
+      },
+      "style": {
+        "defaultValue": {
+          "value": "{}",
+          "computed": false
+        },
+        "required": false
+      },
+      "fill": {
+        "defaultValue": {
+          "value": "\"#000\"",
+          "computed": false
+        },
+        "required": false
+      },
+      "viewBox": {
+        "defaultValue": {
+          "value": "\"\"",
+          "computed": false
+        },
+        "required": false
+      },
+      "width": {
+        "defaultValue": {
+          "value": "\"100%\"",
+          "computed": false
+        },
+        "required": false
+      },
+      "className": {
+        "defaultValue": {
+          "value": "\"icon\"",
+          "computed": false
+        },
+        "required": false
+      },
+      "height": {
+        "defaultValue": {
+          "value": "\"100%\"",
+          "computed": false
+        },
+        "required": false
       }
     }
   }

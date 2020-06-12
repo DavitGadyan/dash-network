@@ -10,7 +10,7 @@ Network graph component, based on D3 force layout
 Keyword arguments:
 - id (string; optional): The ID used to identify this component in Dash callbacks
 - width (number; optional): Width of the figure to draw, in pixels
-- height (number; optional): Height of the figure to draw, in pixels
+- height (number; default 500): Height of the figure to draw, in pixels
 - data (dict; required): The network data. Should have the form:
 
   `{nodes: [node0, node1, ...], links: [link0, link1, ...]}`
@@ -31,23 +31,21 @@ links have the form:
 `source` and `target` are required, and must match node ids.
 `width` is an optional relative width, scaled by `maxLinkWidth`
 - dataVersion (string | number; optional): Optional version id for data, to avoid having to diff a large object
-- linkWidth (number; optional): Optional default width of links, in px
-- maxLinkWidth (number; optional): Optional maximum width of links, in px. If individual links have `width`,
+- linkWidth (number; default 4): Optional default width of links, in px
+- maxLinkWidth (number; default 20): Optional maximum width of links, in px. If individual links have `width`,
 these will be scaled linearly so the largest one has width `maxLinkWidth`.
-- nodeRadius (number; optional): Optional default radius of nodes, in px
-- maxRadius (number; optional): Optional maximum radius of nodes, in px. If individual nodes have `radius`,
+- nodeRadius (number; default 10): Optional default radius of nodes, in px
+- maxRadius (number; default 20): Optional maximum radius of nodes, in px. If individual nodes have `radius`,
 these will be scaled linearly so the largest one has radius `maxRadius`.
 - selectedId (string; optional): The currently selected node id
-
-Available events: """
+- selectedIds (list of strings; optional): The currently selected node ids"""
     @_explicitize_args
-    def __init__(self, id=Component.UNDEFINED, width=Component.UNDEFINED, height=Component.UNDEFINED, data=Component.REQUIRED, dataVersion=Component.UNDEFINED, linkWidth=Component.UNDEFINED, maxLinkWidth=Component.UNDEFINED, nodeRadius=Component.UNDEFINED, maxRadius=Component.UNDEFINED, selectedId=Component.UNDEFINED, **kwargs):
-        self._prop_names = ['id', 'width', 'height', 'data', 'dataVersion', 'linkWidth', 'maxLinkWidth', 'nodeRadius', 'maxRadius', 'selectedId']
+    def __init__(self, id=Component.UNDEFINED, width=Component.UNDEFINED, height=Component.UNDEFINED, data=Component.REQUIRED, dataVersion=Component.UNDEFINED, linkWidth=Component.UNDEFINED, maxLinkWidth=Component.UNDEFINED, nodeRadius=Component.UNDEFINED, maxRadius=Component.UNDEFINED, selectedId=Component.UNDEFINED, selectedIds=Component.UNDEFINED, **kwargs):
+        self._prop_names = ['id', 'width', 'height', 'data', 'dataVersion', 'linkWidth', 'maxLinkWidth', 'nodeRadius', 'maxRadius', 'selectedId', 'selectedIds']
         self._type = 'Network'
         self._namespace = 'dash_network'
         self._valid_wildcard_attributes =            []
-        self.available_events = []
-        self.available_properties = ['id', 'width', 'height', 'data', 'dataVersion', 'linkWidth', 'maxLinkWidth', 'nodeRadius', 'maxRadius', 'selectedId']
+        self.available_properties = ['id', 'width', 'height', 'data', 'dataVersion', 'linkWidth', 'maxLinkWidth', 'nodeRadius', 'maxRadius', 'selectedId', 'selectedIds']
         self.available_wildcard_properties =            []
 
         _explicit_args = kwargs.pop('_explicit_args')
@@ -55,31 +53,8 @@ Available events: """
         _locals.update(kwargs)  # For wildcard attrs
         args = {k: _locals[k] for k in _explicit_args if k != 'children'}
 
-        for k in [u'data']:
+        for k in ['data']:
             if k not in args:
                 raise TypeError(
                     'Required argument `' + k + '` was not specified.')
         super(Network, self).__init__(**args)
-
-    def __repr__(self):
-        if(any(getattr(self, c, None) is not None
-               for c in self._prop_names
-               if c is not self._prop_names[0])
-           or any(getattr(self, c, None) is not None
-                  for c in self.__dict__.keys()
-                  if any(c.startswith(wc_attr)
-                  for wc_attr in self._valid_wildcard_attributes))):
-            props_string = ', '.join([c+'='+repr(getattr(self, c, None))
-                                      for c in self._prop_names
-                                      if getattr(self, c, None) is not None])
-            wilds_string = ', '.join([c+'='+repr(getattr(self, c, None))
-                                      for c in self.__dict__.keys()
-                                      if any([c.startswith(wc_attr)
-                                      for wc_attr in
-                                      self._valid_wildcard_attributes])])
-            return ('Network(' + props_string +
-                   (', ' + wilds_string if wilds_string != '' else '') + ')')
-        else:
-            return (
-                'Network(' +
-                repr(getattr(self, self._prop_names[0], None)) + ')')
