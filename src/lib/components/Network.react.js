@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import NetworkD3 from '../d3/network';
+import SVGIcon from "./SVGIcon";
 
 import "./network.css"  
 
@@ -8,6 +9,16 @@ import "./network.css"
  * Network graph component, based on D3 force layout
  */
 export default class Network extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+           graph_mode: false,
+           toolbar_pan_class: "modebar-btn active",
+           toolbar_lasso_class: "modebar-btn"
+        };
+        this.click_toolbar = this.click_toolbar.bind(this);
+    }
+
     componentDidMount() {
         this.network = new NetworkD3(this.el, this.props, node => {
            const {setProps} = this.props;
@@ -22,8 +33,47 @@ export default class Network extends Component {
         this.network.update(this.props);
     }
 
+    click_toolbar(e) {
+        e.preventDefault(); 
+
+        var val = e.currentTarget.dataset.name;
+
+        if(val == "pan"){
+            this.setState({
+                graph_mode: false,
+                toolbar_pan_class: "modebar-btn active",
+                toolbar_lasso_class: "modebar-btn"
+            });
+        }
+        else if(val=="lasso"){
+            this.setState({
+                graph_mode: true,
+                toolbar_pan_class: "modebar-btn",
+                toolbar_lasso_class: "modebar-btn active"
+            });
+        }
+        this.network.update_mode(val);
+
+    }
+
+
     render() {
-        return <div className={'main_div'} id={this.props.id} ref={el => {this.el = el}} />;
+        return (
+            <div className={'main_div'} id={this.props.id} ref={el => {this.el = el}}>
+                <div className={"modebar-container"}>  
+                    <div className={"modebar modebar--hover ease-bg"}>
+                        <div className={"modebar-group"}>
+                            <a className={this.state.toolbar_pan_class} data-name={"pan"} onClick={this.click_toolbar}>
+                                <SVGIcon name="pan" width={100} fill={""} />
+                            </a>            
+                            <a className={this.state.toolbar_lasso_class} data-name={"lasso"} onClick={this.click_toolbar}>
+                                <SVGIcon name="lasso" width={100} fill={""} />
+                            </a> 
+                        </div>  
+                    </div>
+                </div>
+            </div> 
+            );
     }
 }
 

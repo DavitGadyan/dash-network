@@ -40,6 +40,12 @@ export default class NetworkD3 {
         self.el = el;
 
         self.update = self.update.bind(self);
+
+        self.update_mode = self.update_mode.bind(self);
+        self.lasso_start = self.lasso_start.bind(self);
+        self.lasso_draw = self.lasso_draw.bind(self);
+        self.lasso_end = self.lasso_end.bind(self);
+
         self.tick = self.tick.bind(self);
         self.drag = self.drag.bind(self);
         self.wrappedClick = self.wrappedClick.bind(self);
@@ -95,48 +101,7 @@ export default class NetworkD3 {
 
         //lasso feature
         // Define the lasso
-        // Lasso functions to execute while lassoing
-        var lasso_start = function() {
-            var r = Math.floor(self.figure.nodeRadius * 0.6);
-            self.lasso.items()            
-                .classed("not_possible",true)
-                .classed("selected",false)
-                .attr("r", r);
-        };
-
-        var lasso_draw = function(){
-            // Style the possible dots
-            var r = Math.floor(self.figure.nodeRadius * 0.6);
-            self.lasso.possibleItems()
-                .classed("not_possible",false)
-                .classed("possible",true)
-                .attr("r", r);
-
-            // Style the not possible dot
-            self.lasso.notPossibleItems()
-                .classed("not_possible",true)
-                .classed("possible",false)
-                .attr("r", r);
-        };
-
-        var lasso_end = function() {
-            // Reset the color of all dots
-            var r = Math.floor(self.figure.nodeRadius * 0.6);
-            self.lasso.items()
-                .classed("not_possible",false)
-                .classed("possible",false);
-
-            // Style the selected dots
-            self.lasso.selectedItems()
-                .classed("selected",true)
-                .attr("r", r);
-
-            // Reset the style of the not selected dots
-            self.lasso.notSelectedItems()
-                .attr("r", self.figure.nodeRadius);
-
-            
-        };
+        
 
         self.nodes = self.nodeGroup.selectAll('circle');
         
@@ -145,10 +110,8 @@ export default class NetworkD3 {
         self.lasso_pan = d3.select(el).append("svg")
                     .attr('viewBox', [-width / 2, -height / 2, width, height])
                     .attr('width', width)
-                    .attr('height', height)                
-                    .style("position", "absolute")
-                    .style("top", 0)
-                    .style("left", 0)
+                    .attr('height', height) 
+                    .attr('style', "position:absolute; top:0; left:0;")
                     .attr("transform", "translate(0, 0) scale(1, 1)")                    
                     ;
         self.lasso_pan.append("g");
@@ -158,13 +121,14 @@ export default class NetworkD3 {
             .closePathDistance(100)
             .items(self.nodes)        
             .targetArea(self.lasso_pan)
-            .on("start", lasso_start)
-            .on("draw", lasso_draw)
-            .on("end", lasso_end);
+            .on("start", self.lasso_start)
+            .on("draw", self.lasso_draw)
+            .on("end", self.lasso_end);
 
         // Init the lasso on the svg:g that contains the dots
         self.svg.call(self.lasso);
 
+        self.update_mode("pan");
 
         setTimeout(function(){
             self.simulation
@@ -178,6 +142,24 @@ export default class NetworkD3 {
         this.onClick(d);
         this.resetZoom();
         d3.event.stopPropagation();
+    }
+
+    update_mode(mode){
+        const self = this;
+        if(mode == "pan"){            
+            self.lasso.items()
+                .classed("not_possible",false)
+                .classed("possible",false)
+                .classed("selected", false)
+                .attr("r", self.figure.nodeRadius);
+                
+            self.updateDefs();
+
+            self.lasso_pan.attr('style', "position:absolute; top:0; left:0; display:none;")
+        }
+        else if(mode == "lasso"){
+            self.lasso_pan.attr('style', "position:absolute; top:0; left:0; display:block;")
+        }
     }
 
     update(figure) {
@@ -517,6 +499,52 @@ export default class NetworkD3 {
         
         return PREFIX_ID + normalizeId(sourceId) + "_" + normalizeId(targetId);
     }
+
+    // Lasso functions to execute while lassoing
+    lasso_start() {
+        const self = this;
+        var r = Math.floor(self.figure.nodeRadius * 0.6);
+        self.lasso.items()            
+            .classed("not_possible",true)
+            .classed("selected",false)
+            .attr("r", r);
+    };
+
+    lasso_draw(){
+        const self = this;
+        // Style the possible dots
+        var r = Math.floor(self.figure.nodeRadius * 0.6);
+        self.lasso.possibleItems()
+            .classed("not_possible",false)
+            .classed("possible",true)
+            .attr("r", r);
+
+        // Style the not possible dot
+        self.lasso.notPossibleItems()
+            .classed("not_possible",true)
+            .classed("possible",false)
+            .attr("r", r);
+    };
+
+    lasso_end() {
+        const self = this;
+        // Reset the color of all dots
+        var r = Math.floor(self.figure.nodeRadius * 0.6);
+        self.lasso.items()
+            .classed("not_possible",false)
+            .classed("possible",false);
+
+        // Style the selected dots
+        self.lasso.selectedItems()
+            .classed("selected",true)
+            .attr("r", r);
+
+        // Reset the style of the not selected dots
+        self.lasso.notSelectedItems()
+            .attr("r", self.figure.nodeRadius);
+
+        
+    };
 };
 
 /**
