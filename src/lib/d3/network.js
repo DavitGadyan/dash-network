@@ -34,6 +34,9 @@ const nodeAttrs = {
     strokeWidth: 1
 };
 
+const cc_zoom_scale_level = 11
+const zoom_scale_arr = [1, 1.15, 1.32, 1.75, 2, 2.3, 2.6, 3, 3.5, 4, 5]
+
 export default class NetworkD3 {
     constructor(el, figure, onClick) {
         const self = this;
@@ -51,6 +54,16 @@ export default class NetworkD3 {
         self.wrappedClick = self.wrappedClick.bind(self);
         self.zoomed = self.zoomed.bind(self);
 
+        //self.pan_drag = self.pan_drag.bind(self);
+
+
+        self.transform = d3.zoomIdentity;
+        self.translate = [0, 0];
+
+        self.zoomed_manual = self.zoomed_manual.bind(self);
+
+        self.current_zoom_level = 0;
+
         // eslint-disable-next-line no-use-before-define
         self.colorSchemeFactory = new ColorSchemeFactory();
         self.colorScheme = self.colorSchemeFactory.getColorScheme(figure.data.colorscheme);
@@ -62,10 +75,10 @@ export default class NetworkD3 {
         self.defs = self.svg.append("svg:defs");
 
         self.linkGroup = self.svg.append('g')
-            //.style('pointer-events', 'none');
+            .style('pointer-events', 'none');
         self.nodeGroup = self.svg.append('g');
         self.textGroup = self.svg.append('g')
-            //.style('pointer-events', 'none');
+            .style('pointer-events', 'none');
 
         self.figure = {};
 
@@ -89,9 +102,11 @@ export default class NetworkD3 {
             .force("attractForce", self.attractForce) 
             .on('tick', self.tick());
 
-        self.zoom = d3.zoom()
+        self.zoom = d3.zoom()            
             .scaleExtent([ZOOM_SCALE_EXTENT_MIN, ZOOM_SCALE_EXTENT_MAX])
-            .on("zoom", self.zoomed);
+            .on("zoom", self.zoomed)            
+            ;
+        self.zoomed_manual(zoom_scale_arr[self.current_zoom_level], 0, 0);
 
         self.svg
             .call(self.zoom)
@@ -128,7 +143,19 @@ export default class NetworkD3 {
         // Init the lasso on the svg:g that contains the dots
         self.svg.call(self.lasso);
 
-        self.update_mode("pan");
+/*
+        // init drag pan
+        self.drag_pan = d3.select(el).append("svg")
+            .attr('viewBox', [-width / 2, -height / 2, width, height])
+            .attr('width', width)
+            .attr('height', height) 
+            .attr('style', "position:absolute; top:0; left:0;")
+            .attr("transform", "translate(0, 0) scale(1, 1)")                                
+            ;
+        self.drag_pan_g = self.drag_pan.append("g");
+        self.drag_pan.call(self.pan_drag);
+*/
+        self.update_mode("init");
 
         setTimeout(function(){
             self.simulation
@@ -140,25 +167,37 @@ export default class NetworkD3 {
 
     wrappedClick(d) {
         this.onClick(d);
-        this.resetZoom();
+        //this.resetZoom();
         d3.event.stopPropagation();
     }
 
     update_mode(mode){
         const self = this;
-        if(mode == "pan"){            
-            self.lasso.items()
-                .classed("not_possible",false)
-                .classed("possible",false)
-                .classed("selected", false)
-                .attr("r", self.figure.nodeRadius);
-                
-            self.updateDefs();
+        self.lasso_pan.attr('style', "position:absolute; top:0; left:0; display:none;");
+        self.lasso.items()
+            .classed("not_possible",false)
+            .classed("possible",false)
+            .classed("selected", false)
+            .attr("r", self.figure.nodeRadius);
+            
+        self.updateDefs();
+        self.svg.attr("style", "cursor: pointer;");
+        self.svg_mode = mode;
 
-            self.lasso_pan.attr('style', "position:absolute; top:0; left:0; display:none;")
+        if(mode == "pan"){                        
+            self.svg.attr("style", "cursor: move;");
         }
         else if(mode == "lasso"){
             self.lasso_pan.attr('style', "position:absolute; top:0; left:0; display:block;")
+        }
+        else if(mode == "zoomin"){
+            var zoom_level = self.current_zoom_level;
+            if(zoom_level < cc_zoom_scale_level - 1){
+                zoom_level++;
+                self.current_zoom_level = zoom_level;
+            }
+
+            self.zoomed_manual(zoom_scale_arr[zoom_level], self.transform.x, self.transform.y);
         }
     }
 
@@ -417,7 +456,7 @@ export default class NetworkD3 {
     getClientBoundingX(x) {
         const {width, nodeRadius} = this.figure;
         const halfWidth = width / 2;
-        const scale = this.transform.k;
+        const scale = (this.transform==undefined) ? 1 : this.transform.k;
         const maxHalfWidth = (halfWidth - nodeRadius - PADDING) / scale;
         
         if (x < -maxHalfWidth) {
@@ -433,7 +472,7 @@ export default class NetworkD3 {
 
     getClientBoundingY(y) {
         const {height, nodeRadius} = this.figure;
-        const scale = this.transform.k;
+        const scale = (this.transform==undefined) ? 1 : this.transform.k;
         const halfHeight = height / 2;
         const maxHalfHeight = (halfHeight - nodeRadius - PADDING) / scale;
 
@@ -452,6 +491,7 @@ export default class NetworkD3 {
         const self = this;
 
         const dragstarted = d => {
+            if(this.svg_mode == "pan") return;
             if (!d3.event.active) {
                 self.simulation.alphaTarget(DRAGALPHA).restart();
             }
@@ -460,11 +500,13 @@ export default class NetworkD3 {
         }
 
         const dragged = d => {
+            if(this.svg_mode == "pan") return;
             d.fx = d3.event.x;
             d.fy = d3.event.y;
         }
 
         const dragended = d => {
+            if(this.svg_mode == "pan") return;
             if (!d3.event.active) {
                 self.simulation.alphaTarget(0);
             }
@@ -478,10 +520,11 @@ export default class NetworkD3 {
             .on('end', dragended);
     }
 
-    zoomed() {
-        const transform = d3.event.transform;        
-        transform.x = 0;
-        transform.y = 0;
+    zoomed_manual(k, x, y){
+        const transform = this.transform;
+        transform.k = k;
+        transform.x = x;
+        transform.y = y;
 
         this.nodeGroup.attr("transform", transform);
         this.linkGroup.attr("transform", transform);
@@ -489,8 +532,31 @@ export default class NetworkD3 {
         this.transform = transform;
     }
 
+    zoomed() {
+        if(this.svg_mode != "pan")
+            return;
+
+        const transform = this.transform;    
+        if(d3.event.sourceEvent == undefined)
+            return;
+        if(d3.event.sourceEvent.type == "wheel")
+            return;
+
+        var x = d3.event.sourceEvent.offsetX - this.figure.width/2;
+        var y = d3.event.sourceEvent.offsetY - this.figure.height/2;
+
+        this.nodeGroup.attr("transform", "translate(" + x + "," + y + ")scale(" + this.transform.k + ")");
+        this.linkGroup.attr("transform", "translate(" + x + "," + y + ")scale(" + this.transform.k + ")");
+
+        transform.x = x;
+        transform.y = y;
+        this.transform = transform;
+    }
+
     resetZoom() {
-        this.svg.call(this.zoom.transform, d3.zoomIdentity);
+        //this.svg.call(this.zoom.transform, d3.zoomIdentity);
+        this.current_zoom_level = 0;
+        this.zoomed_manual(zoom_scale_arr[this.current_zoom_level], 0, 0);
     }
 
     createConnectId(source, target) {
@@ -545,6 +611,38 @@ export default class NetworkD3 {
 
         
     };
+
+/*
+    pan_drag() {
+        const self = this;
+
+        const dragstarted = d => {
+            if (!d3.event.active) {
+                self.simulation.alphaTarget(DRAGALPHA).restart();
+            }
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+
+        const dragged = d => {
+            d.fx = d3.event.x;
+            d.fy = d3.event.y;
+        }
+
+        const dragended = d => {
+            if (!d3.event.active) {
+                self.simulation.alphaTarget(0);
+            }
+            d.fx = null;
+            d.fy = null;
+        }
+
+        return d3.drag()
+            .on('start', dragstarted)
+            .on('drag', dragged)
+            .on('end', dragended);
+    }
+*/
 };
 
 /**

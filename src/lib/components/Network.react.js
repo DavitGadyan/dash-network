@@ -11,11 +11,15 @@ import "./network.css"
 export default class Network extends Component {
     constructor(props) {
         super(props);
-        this.state = {
-           graph_mode: false,
-           toolbar_pan_class: "modebar-btn active",
-           toolbar_lasso_class: "modebar-btn"
+        this.state = {           
+           toolbar_pan_value: 0,
+           toolbar_pan_class: "modebar-btn",
+           toolbar_lasso_value: 0,
+           toolbar_lasso_class: "modebar-btn",
+           toolbar_zoomin_value: 0,
+           toolbar_zoomin_class: "modebar-btn"
         };
+        this.init_toolbar = this.init_toolbar.bind(this);
         this.click_toolbar = this.click_toolbar.bind(this);
     }
 
@@ -33,27 +37,62 @@ export default class Network extends Component {
         this.network.update(this.props);
     }
 
+    init_toolbar(){
+        this.setState({
+            toolbar_pan_value: 0,
+            toolbar_pan_class: "modebar-btn",
+            toolbar_lasso_value: 0,
+            toolbar_lasso_class: "modebar-btn",
+            toolbar_zoomin_value: 0,
+            toolbar_zoomin_class: "modebar-btn"
+        });   
+    }
     click_toolbar(e) {
         e.preventDefault(); 
 
         var val = e.currentTarget.dataset.name;
+        var pre_state = this.state;
+        this.init_toolbar();
 
         if(val == "pan"){
-            this.setState({
-                graph_mode: false,
-                toolbar_pan_class: "modebar-btn active",
-                toolbar_lasso_class: "modebar-btn"
-            });
+            if(pre_state.toolbar_pan_value == 0){                
+                this.setState({
+                    toolbar_pan_value: 1,
+                    toolbar_pan_class: "modebar-btn active"                    
+                });   
+                this.network.update_mode("pan");             
+            }
+            else{
+                this.setState({
+                    toolbar_pan_value: 0,
+                    toolbar_pan_class: "modebar-btn"                    
+                });  
+                this.network.update_mode("init");    
+            }            
         }
         else if(val=="lasso"){
-            this.setState({
-                graph_mode: true,
-                toolbar_pan_class: "modebar-btn",
-                toolbar_lasso_class: "modebar-btn active"
-            });
+            if(pre_state.toolbar_lasso_value == 0){                
+                this.setState({
+                    toolbar_lasso_value: 1,
+                    toolbar_lasso_class: "modebar-btn active"                    
+                });   
+                this.network.update_mode("lasso");             
+            }
+            else{
+                this.setState({
+                    toolbar_lasso_value: 0,
+                    toolbar_lasso_class: "modebar-btn"                    
+                });  
+                this.network.update_mode("init");    
+            }      
         }
-        this.network.update_mode(val);
-
+        else if(val=="zoomin"){            
+            this.setState({
+                toolbar_zoomin_value: 1,
+                toolbar_zoomin_class: "modebar-btn active"                    
+            }); 
+            this.network.update_mode("zoomin");                                 
+        }
     }
 
 
@@ -68,6 +107,9 @@ export default class Network extends Component {
                             </a>            
                             <a className={this.state.toolbar_lasso_class} data-name={"lasso"} onClick={this.click_toolbar}>
                                 <SVGIcon name="lasso" width={100} fill={""} />
+                            </a> 
+                            <a className={this.state.toolbar_zoomin_class} data-name={"zoomin"} onClick={this.click_toolbar}>
+                                <SVGIcon name="zoomin" width={100} fill={""} />
                             </a> 
                         </div>  
                     </div>

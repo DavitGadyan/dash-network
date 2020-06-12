@@ -46,7 +46,7 @@
     .modebar-container{
         position: absolute; 
         top: 0px; 
-        right: 0px; 
+        left: 0px; 
         width: 100%;
         z-index: 10000;
     }
@@ -54,7 +54,7 @@
     .modebar {
         position: absolute;
         top: 2px;
-        right: 2px;
+        left: 2px;
     }
     .ease-bg {
         /*transition: background-color 0.3s ease 0s;*/
@@ -68,6 +68,7 @@
         position: relative;
         vertical-align: middle;
         white-space: nowrap;
+        width: 30px;
     }
 
     .modebar--hover > :not(.watermark) {
@@ -89,6 +90,7 @@
         padding: 3px 4px;
         text-decoration: none;
         transition: opacity 0.3s ease 0s;
+        float: left;
     }
 
     .modebar-btn svg {
