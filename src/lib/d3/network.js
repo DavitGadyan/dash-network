@@ -69,7 +69,7 @@ export default class NetworkD3 {
         self.colorScheme = self.colorSchemeFactory.getColorScheme(figure.data.colorscheme);
         self.color = d => self.colorScheme(d.color);
 
-        self.svg = d3.select(el).append('svg');
+        self.svg = d3.select(el).append('svg').attr('class', 'main-force');
         self.svg.on('click', self.wrappedClick);
         
         self.defs = self.svg.append("svg:defs");
@@ -120,7 +120,8 @@ export default class NetworkD3 {
         
 
         self.nodes = self.nodeGroup.selectAll('circle');
-        
+
+        /*
         var width = self.svg.attr("width");
         var height = self.svg.attr("height");
         self.lasso_pan = d3.select(el).append("svg")
@@ -143,7 +144,7 @@ export default class NetworkD3 {
 
         // Init the lasso on the svg:g that contains the dots
         self.svg.call(self.lasso);
-
+        */
 
         self.update_mode("init");
 
@@ -349,8 +350,28 @@ export default class NetworkD3 {
         }
         self.simulation.alpha(0.5).restart();
 
+
+        if(self.lasso_pan == undefined){            
+            self.lasso_pan = d3.select(self.el).append("svg")
+                        .attr('viewBox', [-width / 2, -height / 2, width, height])
+                        .attr('width', width)
+                        .attr('height', height) 
+                        .attr('style', "position:absolute; top:0; left:0;")
+                        .attr("transform", "translate(0, 0) scale(1, 1)")                    
+                        ;
+            self.lasso_pan.append("g");
+        }
         self.lasso = d3_lasso.lasso()
-            .items(self.nodes);
+            .closePathSelect(true)
+            .closePathDistance(100)
+            .items(self.nodes)        
+            .targetArea(self.lasso_pan)
+            .on("start", self.lasso_start)
+            .on("draw", self.lasso_draw)
+            .on("end", self.lasso_end);
+
+        // Init the lasso on the svg:g that contains the dots
+        self.svg.call(self.lasso);
     }
 
     updateDefs() {

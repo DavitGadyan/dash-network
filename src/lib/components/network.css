@@ -40,7 +40,11 @@
     }
 
     .main_div{
-        position: relative;
+        position: relative;        
+    }
+
+    .main-force{
+        background-color: #333333;
     }
 
     .modebar-container{
@@ -83,7 +87,7 @@
     .modebar-btn {
         position: relative;
         font-size: 16px;
-        height: 22px;
+        height: 27px;
         cursor: pointer;
         line-height: normal;
         box-sizing: border-box;
@@ -91,6 +95,7 @@
         text-decoration: none;
         transition: opacity 0.3s ease 0s;
         float: left;
+        background-color: #555555;
     }
 
     .modebar-btn svg {
@@ -100,13 +105,13 @@
     }
 
     .modebar-btn .icon{
-        height: 1em;
-        width: 1em;
+        height: 20px;
+        width: 20px;
         pointer-events: none;
     }
 
     .modebar-btn .icon path {
-        fill: rgba(68, 68, 68, 0.3);
+        fill: rgba(120, 120, 120, 0.7);
     }
 
     .modebar-btn:hover::before, .modebar-btn:hover::after {
@@ -126,7 +131,7 @@
     }
 
     .modebar-btn:hover .icon path {
-        fill: rgba(68, 68, 68, 0.7);
+        fill: rgba(200, 200, 200, 0.7);
     }
     .modebar-btn.active .icon path {
         fill: rgba(246, 248, 248, 0.8);
