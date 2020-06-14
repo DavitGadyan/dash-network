@@ -190,6 +190,15 @@ export default class NetworkD3 {
 
             self.zoomed_manual(zoom_scale_arr[zoom_level], self.transform.x, self.transform.y);
         }
+        else if(mode == "zoomout"){
+            var zoom_level = self.current_zoom_level;
+            if(zoom_level > 0){
+                zoom_level--;
+                self.current_zoom_level = zoom_level;
+            }
+
+            self.zoomed_manual(zoom_scale_arr[zoom_level], self.transform.x, self.transform.y);
+        }
     }
 
     update(figure) {

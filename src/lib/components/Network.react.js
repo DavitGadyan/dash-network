@@ -17,7 +17,9 @@ export default class Network extends Component {
            toolbar_lasso_value: 0,
            toolbar_lasso_class: "modebar-btn",
            toolbar_zoomin_value: 0,
-           toolbar_zoomin_class: "modebar-btn"
+           toolbar_zoomin_class: "modebar-btn",
+           toolbar_zoomout_value: 0,
+           toolbar_zoomout_class: "modebar-btn"
         };
         this.init_toolbar = this.init_toolbar.bind(this);
         this.click_toolbar = this.click_toolbar.bind(this);
@@ -50,7 +52,9 @@ export default class Network extends Component {
             toolbar_lasso_value: 0,
             toolbar_lasso_class: "modebar-btn",
             toolbar_zoomin_value: 0,
-            toolbar_zoomin_class: "modebar-btn"
+            toolbar_zoomin_class: "modebar-btn",
+            toolbar_zoomout_value: 0,
+            toolbar_zoomout_class: "modebar-btn"
         });   
     }
     click_toolbar(e) {
@@ -99,6 +103,13 @@ export default class Network extends Component {
             }); 
             this.network.update_mode("zoomin");                                 
         }
+        else if(val=="zoomout"){            
+            this.setState({
+                toolbar_zoomout_value: 1,
+                toolbar_zoomout_class: "modebar-btn active"                    
+            }); 
+            this.network.update_mode("zoomout");                                 
+        }
     }
 
 
@@ -116,6 +127,9 @@ export default class Network extends Component {
                             </a> 
                             <a className={this.state.toolbar_zoomin_class} data-name={"zoomin"} onClick={this.click_toolbar}>
                                 <SVGIcon name="zoomin" width={100} fill={""} />
+                            </a> 
+                            <a className={this.state.toolbar_zoomout_class} data-name={"zoomout"} onClick={this.click_toolbar}>
+                                <SVGIcon name="zoomout" width={100} fill={""} />
                             </a> 
                         </div>  
                     </div>
