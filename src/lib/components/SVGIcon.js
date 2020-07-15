@@ -93,6 +93,44 @@ const SVGIcon = ({
   </svg>
 );
 
+SVGIcon.propTypes = {
+  /**
+   * SVGIcon name
+   */
+  name: PropTypes.string,
+
+  /**
+   * SVGIcon style
+   */
+  style: PropTypes.arrayOf(PropTypes.string),
+
+  /**
+   * SVGIcon fill
+   */
+  fill: PropTypes.string,
+
+  /**
+   * SVGIcon viewBox
+   */
+  viewBox: PropTypes.string,
+
+  /**
+   * SVGIcon width
+   */
+  width: PropTypes.string,
+
+  /**
+   * SVGIcon height
+   */
+  height: PropTypes.string,
+
+  /**
+   * SVGIcon className
+   */
+  className: PropTypes.string,
+
+};
+
 /**
  * SVGIcon component, based on D3 force layout
  */

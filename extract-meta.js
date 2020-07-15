@@ -36,6 +36,12 @@ function writeError(msg, filePath) {
 }
 
 function checkWarn(name, value) {
+    /*
+    console.log("---")
+    console.log(name)
+    console.log(value)
+    console.log("---")
+    */
     if (value.length < 1) {
         process.stderr.write(`\nDescription for ${name} is missing!\n`)
     }
@@ -44,7 +50,7 @@ function checkWarn(name, value) {
 function docstringWarning(doc) {
     checkWarn(doc.displayName, doc.description);
 
-    Object.entries(doc.props).forEach(
+    Object.entries(doc.props).forEach(        
         ([name, p]) => checkWarn(`${doc.displayName}.${name}`, p.description)
     );
 }

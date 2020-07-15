@@ -147,53 +147,88 @@
     "methods": [],
     "props": {
       "name": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.string"
+        },
+        "required": false,
+        "description": "SVGIcon name",
         "defaultValue": {
           "value": "\"\"",
           "computed": false
-        },
-        "required": false
+        }
       },
       "style": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.arrayOf(PropTypes.string)"
+        },
+        "required": false,
+        "description": "SVGIcon style",
         "defaultValue": {
           "value": "{}",
           "computed": false
-        },
-        "required": false
+        }
       },
       "fill": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.string"
+        },
+        "required": false,
+        "description": "SVGIcon fill",
         "defaultValue": {
           "value": "\"#000\"",
           "computed": false
-        },
-        "required": false
+        }
       },
       "viewBox": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.string"
+        },
+        "required": false,
+        "description": "SVGIcon viewBox",
         "defaultValue": {
           "value": "\"\"",
           "computed": false
-        },
-        "required": false
+        }
       },
       "width": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.string"
+        },
+        "required": false,
+        "description": "SVGIcon width",
         "defaultValue": {
           "value": "\"100%\"",
           "computed": false
+        }
+      },
+      "height": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.string"
         },
-        "required": false
+        "required": false,
+        "description": "SVGIcon height",
+        "defaultValue": {
+          "value": "\"100%\"",
+          "computed": false
+        }
       },
       "className": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.string"
+        },
+        "required": false,
+        "description": "SVGIcon className",
         "defaultValue": {
           "value": "\"icon\"",
           "computed": false
-        },
-        "required": false
-      },
-      "height": {
-        "defaultValue": {
-          "value": "\"100%\"",
-          "computed": false
-        },
-        "required": false
+        }
       }
     }
   }
