@@ -164,7 +164,7 @@ export default class NetworkD3 {
 
     update_mode(mode){
         const self = this;
-        self.lasso_pan.attr('style', "position:absolute; top:0; left:0; display:none;");
+        self.lasso_pan.attr('style', "position:absolute; top:0; left:calc(50% - 150px); display:none;");
         self.lasso.items()
             .classed("not_possible",false)
             .classed("possible",false)
@@ -179,7 +179,7 @@ export default class NetworkD3 {
             self.svg.attr("style", "cursor: move;");
         }
         else if(mode == "lasso"){
-            self.lasso_pan.attr('style', "position:absolute; top:0; left:0; display:block;")
+            self.lasso_pan.attr('style', "position:absolute; top:0; left:calc(50% - 150px); display:block;")
         }
         else if(mode == "zoomin"){
             var zoom_level = self.current_zoom_level;
@@ -365,7 +365,7 @@ export default class NetworkD3 {
                         .attr('viewBox', [-width / 2, -height / 2, width, height])
                         .attr('width', width)
                         .attr('height', height) 
-                        .attr('style', "position:absolute; top:0; left:0;")
+                        .attr('style', "position:absolute; top:0; calc(50% - 150px);")
                         .attr("transform", "translate(0, 0) scale(1, 1)")                    
                         ;
             self.lasso_pan.append("g");
