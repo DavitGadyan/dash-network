@@ -44,7 +44,7 @@ app.layout = html.Div([
     html.Div([
         Network(
             id='net',
-            data=data,height=550, nodeRadius=17, width=300)],className="row", style ={'textAlign': 'center', 'position': 'relative'}),
+            data=data,height=550, nodeRadius=17, width=500)],className="row", style ={'textAlign': 'center', 'position': 'relative'}),
         html.Div(id='output'),
         html.Div(id='output1')
     ])

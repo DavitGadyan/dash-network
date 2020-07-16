@@ -164,7 +164,7 @@ export default class NetworkD3 {
 
     update_mode(mode){
         const self = this;
-        self.lasso_pan.attr('style', "position:absolute; top:0; left:calc(50% - 150px); display:none;");
+        self.lasso_pan.attr('style', "display:none;");
         self.lasso.items()
             .classed("not_possible",false)
             .classed("possible",false)
@@ -179,7 +179,9 @@ export default class NetworkD3 {
             self.svg.attr("style", "cursor: move;");
         }
         else if(mode == "lasso"){
-            self.lasso_pan.attr('style', "position:absolute; top:0; left:calc(50% - 150px); display:block;")
+            const width = self.figure.width || self.el.offsetWidth;
+            var str_style = "position:absolute; top:0; left:calc(50% - " + parseInt(width/2).toString() + "px); display:block;";
+            self.lasso_pan.attr('style', str_style)
         }
         else if(mode == "zoomin"){
             var zoom_level = self.current_zoom_level;
@@ -361,11 +363,12 @@ export default class NetworkD3 {
 
 
         if(self.lasso_pan == undefined){            
+            var str_style = "position:absolute; top:0; left:calc(50% - " + parseInt(width/2).toString() + "px);";
             self.lasso_pan = d3.select(self.el).append("svg")
                         .attr('viewBox', [-width / 2, -height / 2, width, height])
                         .attr('width', width)
                         .attr('height', height) 
-                        .attr('style', "position:absolute; top:0; calc(50% - 150px);")
+                        .attr('style', str_style)
                         .attr("transform", "translate(0, 0) scale(1, 1)")                    
                         ;
             self.lasso_pan.append("g");
@@ -465,6 +468,9 @@ export default class NetworkD3 {
                 const linkVector = new Vector(target.x - source.x, target.y - source.y).getUnit();
                 const ratio = 0.5;
                 const gradientVector = linkVector.scale(ratio);
+
+                //console.log(target.x - source.x, target.y - source.y, linkVector)
+                
 
                 self.defs.select('#' + self.createConnectId(d.source, d.target))
                     .attr("x1", ratio - gradientVector.x)
@@ -726,7 +732,7 @@ class Vector {
     constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.magnitude = Math.sqrt(x * x, y * y);
+        this.magnitude = Math.sqrt(x * x + y * y);
     }
 
     getUnit() {
